@@ -10,6 +10,13 @@ interface NavItem {
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
+// Paste your Drive share link here as-is (the /view?usp=sharing one Drive
+// gives you). It's converted to the embeddable /preview form automatically.
+const RESUME_SHARE_LINK =
+  "https://drive.google.com/file/d/1c7R2M2b5ID4i_vJEM0GMazATt_1y62aY/view?usp=sharing";
+
+const RESUME_URL = RESUME_SHARE_LINK.replace(/\/(view|preview).*$/, "/preview");
+
 const NAV_ITEMS: NavItem[] = [
   { id: "about", label: "About Me", emoji: "👋" },
   { id: "experience", label: "Experience", emoji: "💼" },
@@ -265,8 +272,9 @@ function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
           }}
         >
           <iframe
-            src="/resume.pdf#toolbar=0&navpanes=0&scrollbar=0"
+            src={RESUME_URL}
             title="Resume"
+            allow="autoplay"
             style={{ width: "100%", height: "100%", border: "none" }}
           />
         </div>
