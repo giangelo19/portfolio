@@ -237,6 +237,7 @@ function GradientButton({
 }
 
 const CONTACT_EMAIL = "tongzongian@gmail.com";
+const GMAIL_COMPOSE_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${CONTACT_EMAIL}`;
 
 // Get a free access key at https://web3forms.com/ (enter tongzongian@gmail.com
 // as the recipient) and paste it here — submissions land straight in that inbox.
@@ -810,13 +811,15 @@ export default function App() {
               { label: "LinkedIn", href: "https://linkedin.com/in/gian-angelo-tongzon-7b18562b2", icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               ) },
-              { label: "Email", href: "mailto:tongzongian@gmail.com", icon: (
+              { label: "Email", href: GMAIL_COMPOSE_URL, icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-.883.53-1.659 1.348-1.977L12 9.184 22.652 3.48C23.47 3.798 24 4.574 24 5.457z"/></svg>
               ) },
             ].map(({ label, href, icon }) => (
               <a
                 key={label}
                 href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={label}
                 className="transition-colors hover:text-white"
                 style={{ color: "#94a3b8" }}
@@ -929,15 +932,15 @@ export default function App() {
             </p>
             <ContactForm />
             <div className="flex items-center justify-center gap-5 mt-8">
-              <a href="https://github.com/giangelo19" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
+              <a href="https://github.com/giangelo19" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
                 GitHub
               </a>
               <span style={{ color: "#333" }}>·</span>
-              <a href="https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
+              <a href="https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
                 LinkedIn
               </a>
               <span style={{ color: "#333" }}>·</span>
-              <a href="mailto:tongzongian@gmail.com" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
+              <a href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
                 Email
               </a>
             </div>
@@ -960,11 +963,13 @@ export default function App() {
             {[
               { label: "GitHub", href: "https://github.com/giangelo19" },
               { label: "LinkedIn", href: "https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" },
-              { label: "Email", href: "mailto:tongzongian@gmail.com" },
+              { label: "Email", href: GMAIL_COMPOSE_URL },
             ].map(({ label, href }) => (
               <a
                 key={label}
                 href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-xs transition-colors hover:text-white"
                 style={{ color: "#555", fontFamily: "var(--font-display)" }}
               >
