@@ -22,8 +22,8 @@ const NAV_ITEMS: NavItem[] = [
   { id: "experience", label: "Experience", emoji: "💼" },
   { id: "projects", label: "Projects", emoji: "🚀" },
   { id: "skills", label: "Skills", emoji: "⚡" },
-  { id: "education", label: "Education", emoji: "📊" },
-  { id: "contact", label: "Contact", emoji: "📷" },
+  { id: "education", label: "Education", emoji: "🎓" },
+  { id: "contact", label: "Contact", emoji: "✉️" },
 ];
 
 const TYPEWRITER_PHRASES = [
@@ -73,7 +73,7 @@ const PROJECTS = [
     tags: ["PyTorch", "Computer Vision", "Deep Learning"],
     github: "https://github.com/giangelo19",
     demo: null,
-    icon: "🌊",
+    icon: "🐙",
     imgAlt: "Deep-sea detection thesis",
   },
   {
@@ -113,7 +113,7 @@ const PROJECTS = [
     tags: ["Java Swing", "OOP", "Multithreading"],
     github: "https://github.com/giangelo19",
     demo: null,
-    icon: "🎲",
+    icon: "🐍",
     imgAlt: "Snakes and ladders desktop game",
   },
 ];
@@ -861,7 +861,7 @@ export default function App() {
         {/* ── Education ── */}
         <FadeSection id="education" className="py-28 px-4">
           <div style={{ maxWidth: 760, margin: "0 auto" }}>
-            <SectionHeading>📊 Education</SectionHeading>
+            <SectionHeading>🎓 Education</SectionHeading>
             <div className="flex flex-col gap-5">
               {EDUCATION.map((edu) => (
                 <ExperienceCard key={edu.company} {...edu} />
@@ -873,7 +873,7 @@ export default function App() {
         {/* ── Contact ── */}
         <FadeSection id="contact" className="py-28 px-4">
           <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
-            <SectionHeading>📷 Contact</SectionHeading>
+            <SectionHeading>✉️ Contact</SectionHeading>
             <p className="text-base mb-8" style={{ color: "#94a3b8", fontFamily: "var(--font-body)" }}>
               Have a project in mind or just want to say hi? My inbox is open.
             </p>
