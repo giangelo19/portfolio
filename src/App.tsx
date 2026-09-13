@@ -73,8 +73,8 @@ const PROJECTS = [
     tags: ["PyTorch", "Computer Vision", "Deep Learning"],
     github: "https://github.com/giangelo19",
     demo: null,
-    img: "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Deep sea underwater view",
+    icon: "🌊",
+    imgAlt: "Deep-sea detection thesis",
   },
   {
     title: "Hilongos Service Management System (HL-SMS)",
@@ -83,8 +83,8 @@ const PROJECTS = [
     tags: ["React 19", "Vite", "Tailwind CSS", "React Router", "TanStack Query"],
     github: "https://github.com/giangelo19",
     demo: null,
-    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Government portal interface",
+    icon: "🏛️",
+    imgAlt: "Municipal service management portal",
   },
   {
     title: "General Laboratory Item Management System",
@@ -93,8 +93,8 @@ const PROJECTS = [
     tags: ["Java", "Desktop App", "Database Design"],
     github: "https://github.com/giangelo19",
     demo: null,
-    img: "https://images.unsplash.com/photo-1581093458791-9f3d1cb2a027?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Laboratory equipment shelves",
+    icon: "🔬",
+    imgAlt: "Laboratory item management system",
   },
   {
     title: "CoachTzy",
@@ -103,8 +103,8 @@ const PROJECTS = [
     tags: ["Supabase", "JavaScript", "Full-Stack"],
     github: "https://github.com/giangelo19",
     demo: null,
-    img: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Sports team analytics",
+    icon: "🏆",
+    imgAlt: "Team management and analytics",
   },
   {
     title: "Snek n Laderz",
@@ -113,8 +113,8 @@ const PROJECTS = [
     tags: ["Java Swing", "OOP", "Multithreading"],
     github: "https://github.com/giangelo19",
     demo: null,
-    img: "https://images.unsplash.com/photo-1611996575749-79a3a250f948?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Board game dice and pieces",
+    icon: "🎲",
+    imgAlt: "Snakes and ladders desktop game",
   },
 ];
 
@@ -404,16 +404,13 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
       className="rounded-2xl overflow-hidden flex flex-col transition-transform hover:-translate-y-1 hover:shadow-xl"
       style={{ background: "var(--card)", border: "1px solid var(--border)" }}
     >
-      <div className="relative overflow-hidden h-44 bg-zinc-900">
-        <img
-          src={project.img}
-          alt={project.imgAlt}
-          className="w-full h-full object-cover opacity-80"
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(to bottom, transparent 40%, #161616 100%)" }}
-        />
+      <div
+        className="relative overflow-hidden h-44 flex items-center justify-center"
+        style={{ background: "linear-gradient(135deg, rgba(217,70,239,0.12), rgba(34,211,238,0.12))" }}
+      >
+        <span style={{ fontSize: 56, lineHeight: 1 }} role="img" aria-label={project.imgAlt}>
+          {project.icon}
+        </span>
       </div>
       <div className="p-5 flex flex-col flex-1">
         <h3
@@ -735,11 +732,13 @@ export default function App() {
             Hi! My name is
           </p>
           <h1
-            className="gradient-text font-black leading-none mb-4"
+            className="gradient-text font-black mb-4"
             style={{
               fontSize: "clamp(3rem, 8vw, 7rem)",
+              lineHeight: 1.15,
               letterSpacing: "-0.03em",
               fontFamily: "var(--font-display)",
+              paddingBottom: "0.05em",
             }}
           >
             Gian Angelo Tongzon
