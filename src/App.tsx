@@ -236,6 +236,64 @@ function GradientButton({
   );
 }
 
+const CONTACT_EMAIL = "tongzongian@gmail.com";
+
+function ContactForm() {
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    background: "#1a1a1a",
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    padding: "12px 16px",
+    color: "white",
+    fontFamily: "var(--font-body)",
+    fontSize: 14,
+    outline: "none",
+  };
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (subject.trim()) params.set("subject", subject.trim());
+    if (message.trim()) params.set("body", message.trim());
+    window.location.href = `mailto:${CONTACT_EMAIL}${params.toString() ? `?${params.toString()}` : ""}`;
+  };
+
+  return (
+    <form onSubmit={handleSend} className="flex flex-col gap-4 text-left mb-8">
+      <input
+        type="text"
+        placeholder="Subject"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        style={inputStyle}
+      />
+      <textarea
+        placeholder="Your message"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        rows={5}
+        style={{ ...inputStyle, resize: "vertical" }}
+      />
+      <button
+        type="submit"
+        className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-bold text-white text-base transition-transform hover:scale-105 active:scale-95 self-center"
+        style={{
+          background: "linear-gradient(90deg, #d946ef, #8b5cf6, #22d3ee)",
+          fontFamily: "var(--font-display)",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        Send an Email →
+      </button>
+    </form>
+  );
+}
+
 function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
   return (
     <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative" }}>
@@ -820,9 +878,7 @@ export default function App() {
             <p className="text-base mb-8" style={{ color: "#94a3b8", fontFamily: "var(--font-body)" }}>
               Have a project in mind or just want to say hi? My inbox is open.
             </p>
-            <GradientButton href="mailto:tongzongian@gmail.com">
-              Send an Email →
-            </GradientButton>
+            <ContactForm />
             <div className="flex items-center justify-center gap-5 mt-8">
               <a href="https://github.com/giangelo19" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
                 GitHub
