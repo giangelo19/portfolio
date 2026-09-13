@@ -464,12 +464,12 @@ export default function App() {
                 fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 13, color: "white",
               }}
             >
-              GAT
+              GG
             </div>
             <span
               style={{ color: "#94a3b8", fontSize: 13, fontFamily: "var(--font-body)" }}
             >
-              @gianangelo
+              @giangelo19
             </span>
           </div>
 
