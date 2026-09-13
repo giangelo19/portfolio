@@ -35,83 +35,86 @@ const TYPEWRITER_PHRASES = [
 
 const EXPERIENCE = [
   {
-    company: "Freelance / TATS-Solutions",
-    role: "Full Stack Developer (Laravel / PHP)",
-    dates: "2023 – Present",
+    company: "MYT SoftDev Solutions",
+    role: "Software Engineer Intern",
+    dates: "2026",
     accent: "magenta",
     description:
-      "Building web applications for clients, primarily on Laravel with MySQL and Tailwind CSS. Delivering end-to-end solutions from database design to frontend implementation.",
-  },
-  {
-    company: "MYT SoftDev Solutions",
-    role: "Software Development Intern",
-    dates: "Jun 2023 – Aug 2023",
-    accent: "cyan",
-    description:
-      "Worked on full-stack web development, including a CodeIgniter 4 + React logistics ERP for a trucking business. Contributed to dispatch module, billing, and revenue reporting features.",
+      "Developed backend features for a full-stack logistics ERP (CodeIgniter 4 + React) serving a trucking business, including contract route management modules. Designed and documented the database layer, authoring an ERD and a full data dictionary covering 23 tables, and managed schema migrations and database export/import workflows across local and shared hosting environments.",
   },
 ];
 
+const EDUCATION = [
+  {
+    company: "University of the Philippines Tacloban College",
+    role: "BS Computer Science",
+    dates: "2023 – Present",
+    accent: "magenta",
+    description:
+      "DOST-SEI Scholar. Relevant coursework: Data Structures and Algorithms, Machine Learning, Artificial Intelligence, Computer Vision, Software Engineering, Linear Algebra, Probability and Statistics, Research in Computer Science.",
+  },
+  {
+    company: "Philippine Science High School",
+    role: "High School",
+    dates: "2017 – 2023",
+    accent: "cyan",
+    description:
+      "Relevant coursework: Computer Science, Calculus, Statistics, Physics, Research I–III, Capstone Research Project.",
+  },
+];
+
+// github links point at the profile by default — replace with per-repo URLs
+// (https://github.com/giangelo19/REPO_NAME) once you have them.
 const PROJECTS = [
   {
     title: "MantaNet",
     description:
-      "Undergraduate thesis. Multi-task computer vision model for deep-sea organism detection and segmentation. Trained on custom annotated dataset.",
-    tags: ["PyTorch", "Detectron2", "Python"],
-    github: "#",
+      "Undergraduate thesis. A CNN-based multi-task framework that jointly performs object detection and semantic segmentation on deep-sea imagery using a multicolor space input representation. Built a shared backbone with dual task-specific heads and demonstrated measurable gains over single-task baselines.",
+    tags: ["PyTorch", "Computer Vision", "Deep Learning"],
+    github: "https://github.com/giangelo19",
     demo: null,
     img: "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=600&h=340&fit=crop&auto=format",
     imgAlt: "Deep sea underwater view",
   },
   {
-    title: "Logistics ERP",
+    title: "Hilongos Service Management System (HL-SMS)",
     description:
-      "Full-stack ERP for a trucking business covering dispatch, billing, and revenue reporting. Built with a team of interns during a software internship.",
-    tags: ["CodeIgniter 4", "React", "MySQL"],
-    github: "#",
-    demo: null,
-    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Logistics and trucking dashboard",
-  },
-  {
-    title: "BiteSpot",
-    description:
-      "Food discovery web app built with a student team. Owned the frontend AJAX layer, real-time filtering, and dynamic map integration.",
-    tags: ["Laravel", "JavaScript", "MySQL"],
-    github: "#",
-    demo: "#",
-    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Food dishes on a table",
-  },
-  {
-    title: "HL-SMS",
-    description:
-      "React frontend for a municipal services booking portal backed by a Laravel REST API. Covers appointment scheduling and service management.",
-    tags: ["React", "Laravel", "Tailwind CSS"],
-    github: "#",
+      "React-based web portal for the Municipality of Hilongos covering resident-facing service booking and internal staff workflows across 12 municipal offices. Designed a no-account, multi-step booking flow with reference-code tracking and a typo-tolerant fuzzy search engine.",
+    tags: ["React 19", "Vite", "Tailwind CSS", "React Router", "TanStack Query"],
+    github: "https://github.com/giangelo19",
     demo: null,
     img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=340&fit=crop&auto=format",
     imgAlt: "Government portal interface",
   },
   {
-    title: "Freedom Board",
+    title: "General Laboratory Item Management System",
     description:
-      "Laravel application refactor focused on authentication hardening, role-based access control, and security audit fixes.",
-    tags: ["Laravel", "PHP", "MySQL"],
-    github: "#",
+      "Java-based desktop application for managing laboratory equipment and materials at UP Tacloban. Streamlined inventory tracking across multiple lab departments with a database architecture for equipment categorization and availability monitoring.",
+    tags: ["Java", "Desktop App", "Database Design"],
+    github: "https://github.com/giangelo19",
     demo: null,
-    img: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Security lock and code",
+    img: "https://images.unsplash.com/photo-1581093458791-9f3d1cb2a027?w=600&h=340&fit=crop&auto=format",
+    imgAlt: "Laboratory equipment shelves",
   },
   {
-    title: "Expense Tracker",
+    title: "CoachTzy",
     description:
-      "Personal mobile expense tracking app. Tag and categorize transactions, view monthly summaries and spending trends. Currently in progress.",
-    tags: ["In Progress"],
-    github: "#",
+      "Full-stack web app for competitive team management with draft simulation and performance analytics. Implemented secure authentication, a responsive multi-page dashboard, and a database architecture for players, teams, and match data.",
+    tags: ["Supabase", "JavaScript", "Full-Stack"],
+    github: "https://github.com/giangelo19",
     demo: null,
-    img: "https://images.unsplash.com/photo-1579621970590-9d624316904b?w=600&h=340&fit=crop&auto=format",
-    imgAlt: "Expense tracking on phone",
+    img: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=340&fit=crop&auto=format",
+    imgAlt: "Sports team analytics",
+  },
+  {
+    title: "Snek n Laderz",
+    description:
+      "Java-based desktop board game with custom graphics rendering and interactive gameplay. Architected a scalable multi-player framework with animated movement, custom board rendering, dice mechanics, and win detection logic.",
+    tags: ["Java Swing", "OOP", "Multithreading"],
+    github: "https://github.com/giangelo19",
+    demo: null,
+    img: "https://images.unsplash.com/photo-1611996575749-79a3a250f948?w=600&h=340&fit=crop&auto=format",
+    imgAlt: "Board game dice and pieces",
   },
 ];
 
@@ -694,13 +697,13 @@ export default function App() {
           {/* Social icons */}
           <div className="flex items-center gap-5 mt-8">
             {[
-              { label: "GitHub", href: "#", icon: (
+              { label: "GitHub", href: "https://github.com/giangelo19", icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
               ) },
-              { label: "LinkedIn", href: "#", icon: (
+              { label: "LinkedIn", href: "https://linkedin.com/in/gian-angelo-tongzon-7b18562b2", icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               ) },
-              { label: "Email", href: "mailto:gianangelo@example.com", icon: (
+              { label: "Email", href: "mailto:tongzongian@gmail.com", icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-.883.53-1.659 1.348-1.977L12 9.184 22.652 3.48C23.47 3.798 24 4.574 24 5.457z"/></svg>
               ) },
             ].map(({ label, href, icon }) => (
@@ -802,34 +805,10 @@ export default function App() {
         <FadeSection id="education" className="py-28 px-4">
           <div style={{ maxWidth: 760, margin: "0 auto" }}>
             <SectionHeading>📊 Education</SectionHeading>
-            <div
-              className="flex rounded-2xl overflow-hidden"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-            >
-              <div className="w-1 flex-shrink-0" style={{ background: "#d946ef" }} />
-              <div className="p-6 flex-1">
-                <h3
-                  className="text-xl font-bold text-white text-center mb-2"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  University of the Philippines Tacloban College
-                </h3>
-                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                  <span className="font-semibold text-sm" style={{ color: "#d946ef" }}>
-                    BS Computer Science
-                  </span>
-                  <span
-                    className="text-xs italic px-3 py-1 rounded-full"
-                    style={{ background: "#1e1e1e", color: "#94a3b8", border: "1px solid var(--border)" }}
-                  >
-                    2022 – Present
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
-                  Fourth year. Coursework includes Data Communication and Networking, Discrete
-                  Mathematics, and Data Structures and Algorithms.
-                </p>
-              </div>
+            <div className="flex flex-col gap-5">
+              {EDUCATION.map((edu) => (
+                <ExperienceCard key={edu.company} {...edu} />
+              ))}
             </div>
           </div>
         </FadeSection>
@@ -841,19 +820,19 @@ export default function App() {
             <p className="text-base mb-8" style={{ color: "#94a3b8", fontFamily: "var(--font-body)" }}>
               Have a project in mind or just want to say hi? My inbox is open.
             </p>
-            <GradientButton href="mailto:gianangelo@example.com">
+            <GradientButton href="mailto:tongzongian@gmail.com">
               Send an Email →
             </GradientButton>
             <div className="flex items-center justify-center gap-5 mt-8">
-              <a href="#" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
+              <a href="https://github.com/giangelo19" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
                 GitHub
               </a>
               <span style={{ color: "#333" }}>·</span>
-              <a href="#" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
+              <a href="https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
                 LinkedIn
               </a>
               <span style={{ color: "#333" }}>·</span>
-              <a href="mailto:gianangelo@example.com" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
+              <a href="mailto:tongzongian@gmail.com" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
                 Email
               </a>
             </div>
@@ -873,14 +852,18 @@ export default function App() {
             {"  "}·{"  "}© {new Date().getFullYear()}
           </p>
           <div className="flex items-center justify-center gap-4">
-            {["GitHub", "LinkedIn", "Email"].map((s) => (
+            {[
+              { label: "GitHub", href: "https://github.com/giangelo19" },
+              { label: "LinkedIn", href: "https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" },
+              { label: "Email", href: "mailto:tongzongian@gmail.com" },
+            ].map(({ label, href }) => (
               <a
-                key={s}
-                href="#"
+                key={label}
+                href={href}
                 className="text-xs transition-colors hover:text-white"
                 style={{ color: "#555", fontFamily: "var(--font-display)" }}
               >
-                {s}
+                {label}
               </a>
             ))}
           </div>
