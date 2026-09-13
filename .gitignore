@@ -9,3 +9,18 @@ vite.config.*.timestamp-*
 logs/
 *.log
 *-debug.log*
+
+# Agent / AI tooling
+CLAUDE.md
+AGENTS.md
+.claude/
+.figma/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
