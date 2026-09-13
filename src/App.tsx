@@ -205,15 +205,73 @@ function useFadeIn(ref: React.RefObject<Element | null>) {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function GradientButton({ children, href = "#" }: { children: React.ReactNode; href?: string }) {
+function GradientButton({
+  children,
+  href = "#",
+  onClick,
+}: {
+  children: React.ReactNode;
+  href?: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+}) {
   return (
     <a
       href={href}
+      onClick={onClick}
       className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold text-white text-base transition-transform hover:scale-105 active:scale-95"
       style={{ background: "linear-gradient(90deg, #d946ef, #8b5cf6, #22d3ee)", fontFamily: "var(--font-display)" }}
     >
       {children}
     </a>
+  );
+}
+
+function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
+  return (
+    <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative" }}>
+      <div
+        style={{
+          position: "sticky", top: 0, zIndex: 10,
+          background: "rgba(13,13,13,0.9)", backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          padding: "16px 24px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}
+      >
+        <a
+          href="/"
+          onClick={onBack}
+          className="inline-flex items-center gap-2 font-bold transition-colors hover:text-white"
+          style={{ color: "#94a3b8", fontFamily: "var(--font-display)", fontSize: 14 }}
+        >
+          ← Back to Portfolio
+        </a>
+        <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: "var(--font-body)" }}>
+          View only
+        </span>
+      </div>
+
+      <div
+        className="mx-auto"
+        style={{ maxWidth: 900, padding: "24px 16px" }}
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        <div
+          style={{
+            borderRadius: 16, overflow: "hidden",
+            border: "1px solid var(--border)",
+            background: "var(--card)",
+            height: "calc(100vh - 140px)",
+          }}
+        >
+          <iframe
+            src="/resume.pdf#toolbar=0&navpanes=0&scrollbar=0"
+            title="Resume"
+            style={{ width: "100%", height: "100%", border: "none" }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -385,6 +443,17 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showTop, setShowTop] = useState(false);
+  const [page, setPage] = useState<"home" | "resume">(() =>
+    typeof window !== "undefined" && window.location.pathname === "/resume" ? "resume" : "home"
+  );
+
+  useEffect(() => {
+    const onPopState = () => {
+      setPage(window.location.pathname === "/resume" ? "resume" : "home");
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -399,6 +468,24 @@ export default function App() {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const goToResume = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.history.pushState({}, "", "/resume");
+    setPage("resume");
+    window.scrollTo(0, 0);
+  };
+
+  const goHome = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    window.history.pushState({}, "", "/");
+    setPage("home");
+    window.scrollTo(0, 0);
+  };
+
+  if (page === "resume") {
+    return <ResumePage onBack={goHome} />;
+  }
 
   return (
     <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
@@ -595,7 +682,7 @@ export default function App() {
             {typewriter}
             <span className="cursor-blink ml-0.5" style={{ color: "#d946ef" }}>|</span>
           </div>
-          <GradientButton>View Resume →</GradientButton>
+          <GradientButton href="/resume" onClick={goToResume}>View Resume →</GradientButton>
           {/* Social icons */}
           <div className="flex items-center gap-5 mt-8">
             {[
