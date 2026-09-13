@@ -10,12 +10,10 @@ interface NavItem {
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-// Paste your Drive share link here as-is (the /view?usp=sharing one Drive
-// gives you). It's converted to the embeddable /preview form automatically.
-const RESUME_SHARE_LINK =
-  "https://drive.google.com/file/d/1c7R2M2b5ID4i_vJEM0GMazATt_1y62aY/view?usp=sharing";
-
-const RESUME_URL = RESUME_SHARE_LINK.replace(/\/(view|preview).*$/, "/preview");
+// Served from public/resume.pdf — toolbar/navpanes hidden for a cleaner
+// view-only embed (still viewable/savable via browser dev tools, just not
+// front-and-center).
+const RESUME_URL = "/resume.pdf#toolbar=0&navpanes=0&scrollbar=0";
 
 const NAV_ITEMS: NavItem[] = [
   { id: "about", label: "About Me", emoji: "👋" },
@@ -345,50 +343,108 @@ function ContactForm() {
   );
 }
 
-function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
+function AmbientGlows() {
   return (
-    <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative" }}>
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
       <div
         style={{
-          position: "sticky", top: 0, zIndex: 10,
-          background: "rgba(13,13,13,0.9)", backdropFilter: "blur(16px)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          padding: "16px 24px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
+          position: "absolute", top: "-20%", left: "-15%",
+          width: "60vw", height: "60vw",
+          background: "radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)",
+          borderRadius: "50%",
         }}
-      >
-        <a
-          href="/"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 font-bold transition-colors hover:text-white"
-          style={{ color: "#94a3b8", fontFamily: "var(--font-display)", fontSize: 14 }}
-        >
-          ← Back to Portfolio
-        </a>
-        <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: "var(--font-body)" }}>
-          View only
-        </span>
-      </div>
-
+      />
       <div
-        className="mx-auto"
-        style={{ maxWidth: 900, padding: "24px 16px" }}
-        onContextMenu={(e) => e.preventDefault()}
+        style={{
+          position: "absolute", bottom: "-20%", right: "-15%",
+          width: "60vw", height: "60vw",
+          background: "radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)",
+          borderRadius: "50%",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute", top: "40%", right: "-10%",
+          width: "40vw", height: "40vw",
+          background: "radial-gradient(ellipse, rgba(217,70,239,0.08) 0%, transparent 70%)",
+          borderRadius: "50%",
+        }}
+      />
+    </div>
+  );
+}
+
+function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
+  return (
+    <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
+      <AmbientGlows />
+
+      {/* ── Navbar (matches main page) ── */}
+      <nav
+        style={{
+          position: "fixed", top: "16px", left: "50%", transform: "translateX(-50%)",
+          zIndex: 100, width: "min(1100px, 95vw)",
+        }}
       >
         <div
           style={{
-            borderRadius: 16, overflow: "hidden",
-            border: "1px solid var(--border)",
-            background: "var(--card)",
-            height: "calc(100vh - 140px)",
+            background: "rgba(13,13,13,0.9)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "9999px",
+            padding: "8px 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <iframe
-            src={RESUME_URL}
-            title="Resume"
-            allow="autoplay"
-            style={{ width: "100%", height: "100%", border: "none" }}
-          />
+          <a
+            href="/"
+            onClick={onBack}
+            className="flex items-center gap-2 transition-colors hover:text-white"
+            style={{ color: "#94a3b8", fontFamily: "var(--font-display)", fontSize: 13, fontWeight: 600 }}
+          >
+            <div
+              style={{
+                width: 32, height: 32,
+                background: "linear-gradient(135deg, #d946ef, #22d3ee)",
+                borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 13, color: "white",
+              }}
+            >
+              GG
+            </div>
+            ← Back to Portfolio
+          </a>
+          <span
+            className="px-3 py-1 rounded-full"
+            style={{ background: "rgba(217,70,239,0.15)", color: "#d946ef", fontSize: 12, fontWeight: 600, fontFamily: "var(--font-display)" }}
+          >
+            View only
+          </span>
+        </div>
+      </nav>
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div
+          className="mx-auto"
+          style={{ maxWidth: 900, padding: "24px 16px", paddingTop: 96 }}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <div
+            style={{
+              borderRadius: 16, overflow: "hidden",
+              border: "1px solid var(--border)",
+              background: "var(--card)",
+              height: "calc(100vh - 140px)",
+            }}
+          >
+            <iframe
+              src={RESUME_URL}
+              title="Resume"
+              style={{ width: "100%", height: "100%", border: "none" }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -606,37 +662,7 @@ export default function App() {
 
   return (
     <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
-      {/* Ambient glows */}
-      <div
-        style={{
-          position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
-        }}
-      >
-        <div
-          style={{
-            position: "absolute", top: "-20%", left: "-15%",
-            width: "60vw", height: "60vw",
-            background: "radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)",
-            borderRadius: "50%",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute", bottom: "-20%", right: "-15%",
-            width: "60vw", height: "60vw",
-            background: "radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)",
-            borderRadius: "50%",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute", top: "40%", right: "-10%",
-            width: "40vw", height: "40vw",
-            background: "radial-gradient(ellipse, rgba(217,70,239,0.08) 0%, transparent 70%)",
-            borderRadius: "50%",
-          }}
-        />
-      </div>
+      <AmbientGlows />
 
       {/* ── Navbar ── */}
       <nav
