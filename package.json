@@ -1,5 +1,7 @@
 {
-  "name": "figma-make-app",
+  "name": "gian-portfolio",
+  "description": "Personal developer portfolio for Gian Angelo Tongzon.",
+  "author": "Gian Angelo Tongzon",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -7,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
     "format": "oxfmt"
   },
   "dependencies": {
