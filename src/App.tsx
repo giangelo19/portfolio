@@ -238,9 +238,17 @@ function GradientButton({
 
 const CONTACT_EMAIL = "tongzongian@gmail.com";
 
+// Get a free access key at https://web3forms.com/ (enter tongzongian@gmail.com
+// as the recipient) and paste it here — submissions land straight in that inbox.
+const WEB3FORMS_ACCESS_KEY = "b81a22e4-165c-4a92-8f12-b1fe9fc540ef";
+
+type SendState = "idle" | "sending" | "success" | "error";
+
 function ContactForm() {
+  const [fromEmail, setFromEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<SendState>("idle");
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -254,16 +262,45 @@ function ContactForm() {
     outline: "none",
   };
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (subject.trim()) params.set("subject", subject.trim());
-    if (message.trim()) params.set("body", message.trim());
-    window.location.href = `mailto:${CONTACT_EMAIL}${params.toString() ? `?${params.toString()}` : ""}`;
+    setStatus("sending");
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: subject.trim() || "New message from portfolio site",
+          message: message.trim(),
+          email: fromEmail.trim(),
+          to: CONTACT_EMAIL,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus("success");
+        setFromEmail("");
+        setSubject("");
+        setMessage("");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
   };
 
   return (
     <form onSubmit={handleSend} className="flex flex-col gap-4 text-left mb-8">
+      <input
+        type="email"
+        placeholder="Your email"
+        value={fromEmail}
+        onChange={(e) => setFromEmail(e.target.value)}
+        required
+        style={inputStyle}
+      />
       <input
         type="text"
         placeholder="Subject"
@@ -276,20 +313,33 @@ function ContactForm() {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         rows={5}
+        required
         style={{ ...inputStyle, resize: "vertical" }}
       />
       <button
         type="submit"
+        disabled={status === "sending"}
         className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-bold text-white text-base transition-transform hover:scale-105 active:scale-95 self-center"
         style={{
           background: "linear-gradient(90deg, #d946ef, #8b5cf6, #22d3ee)",
           fontFamily: "var(--font-display)",
           border: "none",
-          cursor: "pointer",
+          cursor: status === "sending" ? "wait" : "pointer",
+          opacity: status === "sending" ? 0.7 : 1,
         }}
       >
-        Send an Email →
+        {status === "sending" ? "Sending…" : "Send an Email →"}
       </button>
+      {status === "success" && (
+        <p className="text-sm text-center" style={{ color: "#22d3ee" }}>
+          Message sent — thanks for reaching out!
+        </p>
+      )}
+      {status === "error" && (
+        <p className="text-sm text-center" style={{ color: "#d946ef" }}>
+          Something went wrong. Please email {CONTACT_EMAIL} directly.
+        </p>
+      )}
     </form>
   );
 }
