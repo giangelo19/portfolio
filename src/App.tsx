@@ -123,7 +123,7 @@ const SKILLS = [
   },
   {
     group: "ML / Data",
-    items: ["PyTorch", "Detectron2"],
+    items: ["PyTorch"],
   },
   {
     group: "Tools",
@@ -881,7 +881,7 @@ export default function App() {
                 <span style={{ color: "#8b5cf6", fontWeight: 600 }}>
                   computer vision thesis
                 </span>{" "}
-                using PyTorch and Detectron2.
+                using PyTorch.
               </p>
             </div>
           </div>
