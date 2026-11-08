@@ -227,6 +227,18 @@ body.m #scrollcue{bottom:auto;top:calc(var(--sheet-top,46vh) - 40px)}
     <div class="win"><div class="band"><div class="paper">
       <h2>Projects</h2>
       <div class="cards">
+        <div class="card" data-stop="PROJECT: LOGISTICS ERP" data-look="depot">
+          <div class="row"><h3>Logistics ERP</h3><span class="when">2026</span></div>
+          <div class="org">Backend Developer · MYT SoftDev Solutions (internship)</div>
+          <p>Full-stack ERP for a trucking business, built in CodeIgniter 4 and React. Developed backend features including contract route management modules, designed and documented the database layer with an ERD and a data dictionary covering 23 tables, and managed schema migrations and database export/import across local and shared hosting.</p>
+          <div class="tags"><span class="tag">CodeIgniter 4</span><span class="tag">React</span><span class="tag">MySQL</span><span class="tag">Database Design</span></div>
+        </div>
+        <div class="card" data-stop="PROJECT: BITESPOT" data-look="diner">
+          <div class="row"><h3>BiteSpot</h3><span class="when">2026</span></div>
+          <div class="org">Full-Stack Developer · UP Tacloban</div>
+          <p>Food-spot discovery platform where diners search, filter, review, and bookmark local eateries, and vendors manage their menus, photos, and promotions from their own dashboard. Worked across the Laravel app, from the server side through to its fetch()-based AJAX layer: search and filters, trending spots, posting and editing reviews, bookmarks, the vendor KPI dashboard, menu CRUD with validation, photo uploads, and the admin approval and moderation tools.</p>
+          <div class="tags"><span class="tag">Laravel</span><span class="tag">JavaScript</span><span class="tag">Alpine.js</span><span class="tag">Tailwind CSS</span><span class="tag">AJAX</span></div>
+        </div>
         <div class="card" data-stop="PROJECT: HL-SMS" data-look="hall">
           <div class="row"><h3>Hilongos Service Management System</h3><span class="when">2026</span></div>
           <div class="org">Frontend Developer · Municipality of Hilongos, Leyte</div>
@@ -650,7 +662,9 @@ const ROOFS={
   yellow:{base:"#d9a92b",lo:"#9a7417",hi:"#f2cc5a",rim:"#ffe59a",eave:"#6e520f"},
   maroon:{base:"#8e3b46",lo:"#62252e",hi:"#b5606a",rim:"#d88c94",eave:"#47181f"},
   sky:{base:"#4a90c8",lo:"#2f6491",hi:"#77b2e0",rim:"#a9d2f2",eave:"#22496b"},
-  olive:{base:"#7d8a3a",lo:"#565f25",hi:"#a2b05a",rim:"#c8d48a",eave:"#3e4519"}
+  olive:{base:"#7d8a3a",lo:"#565f25",hi:"#a2b05a",rim:"#c8d48a",eave:"#3e4519"},
+  rust:{base:"#a8572e",lo:"#743a1c",hi:"#cc7d50",rim:"#e8a77e",eave:"#522811"},
+  coral:{base:"#d8664f",lo:"#a04634",hi:"#f08c74",rim:"#ffb8a4",eave:"#6e2a1c"}
 };
 const WALLS={
   cream:{base:"#efe0b6",hi:"#f8efd2",line:"#d6c290",trim:"#6e5a38"},
@@ -669,6 +683,8 @@ const ICONS={
   mail:{col:"#7a4aa0",rows:["XXXXXXXXX","XX.....XX","X.X...X.X","X..X.X..X","X...X...X","X.......X","XXXXXXXXX"]},
   pin:{col:"#8e3b46",rows:[".XXXXX.","XX...XX","XX...XX",".XXXXX.","..XXX..","...X...","...X..."]},
   trophy:{col:"#c99a1a",rows:["XXXXXXXXX","X.XXXXX.X",".XXXXXXX.","..XXXXX..","...XXX...","....X....","..XXXXX.."]},
+  truck:{col:"#743a1c",rows:["XXXXX....","XXXXXXXX.","XXXXXX.XX","XXXXXXXXX","XXXXXXXXX",".XX...XX.",".XX...XX."]},
+  bowl:{col:"#a04634",rows:["..X.X.X..","..X.X.X..",".........","XXXXXXXXX",".XXXXXXX.","..XXXXX..","...XXX..."]},
   dice:{col:"#3a3f4a",rows:["XXXXXXX","X.XXX.X","XXXXXXX","XXX.XXX","XXXXXXX","X.XXX.X","XXXXXXX"]}
 };
 const OVER=4, BTOP=10;
@@ -970,6 +986,8 @@ const LOOKS={
   home:{roof:"green",wall:"cream",chimney:true,w:5,h:4,icon:"star"},
   about:{roof:"brown",wall:"cream",chimney:true,w:6,h:5,icon:"heart"},
   office:{roof:"slate",wall:"cream",w:7,h:5,icon:"case"},
+  depot:{roof:"rust",wall:"pale",w:7,h:5,icon:"truck"},
+  diner:{roof:"coral",wall:"cream",w:6,h:4,icon:"bowl",chimney:true},
   hall:{roof:"maroon",wall:"cream",w:7,h:5,icon:"pin"},
   lab:{roof:"teal",wall:"white",w:6,h:5,icon:"flask",antenna:true},
   arena:{roof:"sky",wall:"cream",w:6,h:5,icon:"trophy"},
