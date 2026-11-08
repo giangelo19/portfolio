@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface NavItem {
   id: string;
   label: string;
-  emoji: string;
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -16,27 +15,31 @@ interface NavItem {
 const RESUME_URL = "/resume.pdf#toolbar=0&navpanes=0&scrollbar=0";
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "about", label: "About Me", emoji: "👋" },
-  { id: "experience", label: "Experience", emoji: "💼" },
-  { id: "projects", label: "Projects", emoji: "🚀" },
-  { id: "skills", label: "Skills", emoji: "⚡" },
-  { id: "education", label: "Education", emoji: "🎓" },
-  { id: "contact", label: "Contact", emoji: "✉️" },
+  { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
+  { id: "projects", label: "Projects" },
+  { id: "skills", label: "Skills" },
+  { id: "education", label: "Education" },
+  { id: "contact", label: "Contact" },
 ];
 
-const TYPEWRITER_PHRASES = [
-  "Full-Stack Developer",
-  "Laravel Developer",
-  "CS Student",
-  "Deep Learning Enthusiast",
-];
+// Built once. Passing `NAV_ITEMS.map(...)` inline makes a new array every
+// render, which re-subscribes every observer that depends on it.
+const SECTION_IDS = NAV_ITEMS.map((n) => n.id);
 
+// A section becomes current once its top crosses this line, as a fraction of
+// the viewport height. The nav highlight and the sounding-line ticks both use
+// it, so a tick lights at the same moment its nav item does.
+const ACTIVE_LINE = 0.35;
+
+// `figures` lists exact substrings of `description` that get set in mono and
+// carry the accent — the one place colour is allowed outside the sounding line.
 const EXPERIENCE = [
   {
     company: "MYT SoftDev Solutions",
     role: "Software Engineer Intern",
     dates: "2026",
-    accent: "magenta",
+    figures: ["23 tables"],
     description:
       "Developed backend features for a full-stack logistics ERP (CodeIgniter 4 + React) serving a trucking business, including contract route management modules. Designed and documented the database layer, authoring an ERD and a full data dictionary covering 23 tables, and managed schema migrations and database export/import workflows across local and shared hosting environments.",
   },
@@ -47,7 +50,7 @@ const EDUCATION = [
     company: "University of the Philippines Tacloban College",
     role: "BS Computer Science",
     dates: "2023 – Present",
-    accent: "magenta",
+    figures: ["DOST-SEI Scholar"],
     description:
       "DOST-SEI Scholar. Relevant coursework: Data Structures and Algorithms, Machine Learning, Artificial Intelligence, Computer Vision, Software Engineering, Linear Algebra, Probability and Statistics, Research in Computer Science.",
   },
@@ -55,74 +58,70 @@ const EDUCATION = [
     company: "Philippine Science High School",
     role: "High School",
     dates: "2017 – 2023",
-    accent: "cyan",
+    figures: [],
     description:
       "Relevant coursework: Computer Science, Calculus, Statistics, Physics, Research I–III, Capstone Research Project.",
   },
 ];
 
-// github links point at the profile by default — replace with per-repo URLs
-// (https://github.com/giangelo19/REPO_NAME) once you have them.
+// The GitHub links point at the profile, not per-project repos — the label says
+// so. Replace with https://github.com/giangelo19/REPO_NAME and relabel once the
+// repositories are public.
 const PROJECTS = [
   {
     title: "MantaNet",
     description:
       "Undergraduate thesis. A CNN-based multi-task framework that jointly performs object detection and semantic segmentation on deep-sea imagery using a multicolor space input representation. Built a shared backbone with dual task-specific heads and demonstrated measurable gains over single-task baselines.",
+    figures: [],
     tags: ["PyTorch", "Computer Vision", "Deep Learning"],
     github: "https://github.com/giangelo19",
     demo: null,
-    icon: "🐙",
-    imgAlt: "Deep-sea detection thesis",
   },
   {
     title: "Hilongos Service Management System (HL-SMS)",
     description:
       "React-based web portal for the Municipality of Hilongos covering resident-facing service booking and internal staff workflows across 12 municipal offices. Designed a no-account, multi-step booking flow with reference-code tracking and a typo-tolerant fuzzy search engine.",
+    figures: ["12 municipal offices"],
     tags: ["React 19", "Vite", "Tailwind CSS", "React Router", "TanStack Query"],
     github: "https://github.com/giangelo19",
     demo: null,
-    icon: "🏛️",
-    imgAlt: "Municipal service management portal",
   },
   {
     title: "General Laboratory Item Management System",
     description:
       "Java-based desktop application for managing laboratory equipment and materials at UP Tacloban. Streamlined inventory tracking across multiple lab departments with a database architecture for equipment categorization and availability monitoring.",
+    figures: [],
     tags: ["Java", "Desktop App", "Database Design"],
     github: "https://github.com/giangelo19",
     demo: null,
-    icon: "🔬",
-    imgAlt: "Laboratory item management system",
   },
   {
     title: "CoachTzy",
     description:
       "Full-stack web app for competitive team management with draft simulation and performance analytics. Implemented secure authentication, a responsive multi-page dashboard, and a database architecture for players, teams, and match data.",
+    figures: [],
     tags: ["Supabase", "JavaScript", "Full-Stack"],
     github: "https://github.com/giangelo19",
     demo: null,
-    icon: "🏆",
-    imgAlt: "Team management and analytics",
   },
   {
     title: "Snek n Laderz",
     description:
       "Java-based desktop board game with custom graphics rendering and interactive gameplay. Architected a scalable multi-player framework with animated movement, custom board rendering, dice mechanics, and win detection logic.",
+    figures: [],
     tags: ["Java Swing", "OOP", "Multithreading"],
     github: "https://github.com/giangelo19",
     demo: null,
-    icon: "🐍",
-    imgAlt: "Snakes and ladders desktop game",
   },
 ];
 
 const SKILLS = [
   {
-    group: "Languages & Frameworks",
+    group: "Languages and frameworks",
     items: ["PHP", "Laravel", "JavaScript", "React", "Python", "MySQL", "Tailwind CSS", "Vite"],
   },
   {
-    group: "ML / Data",
+    group: "ML and data",
     items: ["PyTorch"],
   },
   {
@@ -131,63 +130,156 @@ const SKILLS = [
   },
 ];
 
-// ─── Hooks ───────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function useTypewriter(phrases: string[], speed = 80, pause = 1800) {
-  const [displayed, setDisplayed] = useState("");
-  const [phraseIdx, setPhraseIdx] = useState(0);
-  const [charIdx, setCharIdx] = useState(0);
-  const [deleting, setDeleting] = useState(false);
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 
-  useEffect(() => {
-    const current = phrases[phraseIdx];
-    let timeout: ReturnType<typeof setTimeout>;
+const scrollBehavior = (): ScrollBehavior => (prefersReducedMotion() ? "auto" : "smooth");
 
-    if (!deleting && charIdx <= current.length) {
-      timeout = setTimeout(() => {
-        setDisplayed(current.slice(0, charIdx));
-        setCharIdx((i) => i + 1);
-        if (charIdx === current.length) {
-          timeout = setTimeout(() => setDeleting(true), pause);
-        }
-      }, speed);
-    } else if (deleting && charIdx >= 0) {
-      timeout = setTimeout(() => {
-        setDisplayed(current.slice(0, charIdx));
-        setCharIdx((i) => i - 1);
-        if (charIdx === 0) {
-          setDeleting(false);
-          setPhraseIdx((i) => (i + 1) % phrases.length);
-        }
-      }, speed / 2);
-    }
+/** Splits `text` on each entry in `figures` and sets those runs in mono accent. */
+function withFigures(text: string, figures: string[]) {
+  if (figures.length === 0) return text;
 
-    return () => clearTimeout(timeout);
-  }, [charIdx, deleting, phraseIdx, phrases, speed, pause]);
+  let parts: (string | { figure: string })[] = [text];
 
-  return displayed;
+  for (const figure of figures) {
+    parts = parts.flatMap((part) => {
+      if (typeof part !== "string") return [part];
+      const segments = part.split(figure);
+      if (segments.length === 1) return [part];
+      return segments.flatMap((segment, i) =>
+        i === 0 ? [segment] : [{ figure }, segment]
+      );
+    });
+  }
+
+  return parts.map((part, i) =>
+    typeof part === "string" ? (
+      part
+    ) : (
+      <span key={i} className="figure">
+        {part.figure}
+      </span>
+    )
+  );
 }
 
+/** Position in a staggered reveal. Read by `.reveal` in index.css. */
+const stagger = (i: number) => ({ "--i": i }) as React.CSSProperties;
+
+/** Small seeded PRNG (mulberry32), so the contour chart is the same every load. */
+function seededRandom(seed: number) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Nested depth contours around one seamount, as SVG path strings.
+ *
+ * Every ring shares the same low-frequency wobble, plus a second wobble whose
+ * strength grows with distance from the peak — so outer contours read rougher,
+ * as real terrain does. Both wobbles are bounded so a ring's radius always grows
+ * with its index: contours never cross, as on a real survey chart.
+ */
+function buildContours() {
+  const random = seededRandom(19);
+  const harmonics = (count: number, amp: number) =>
+    Array.from({ length: count }, (_, k) => ({
+      freq: k + 2,
+      amp: (amp * random()) / (k + 1),
+      phase: random() * Math.PI * 2,
+    }));
+
+  const base = harmonics(3, 0.12);
+  const rough = harmonics(4, 0.12);
+  const wobble = (hs: typeof base, angle: number) =>
+    hs.reduce((sum, h) => sum + h.amp * Math.sin(h.freq * angle + h.phase), 0);
+
+  const cx = 1150;
+  const cy = 470;
+  const rMin = 36;
+  const rMax = 900;
+  const step = 30;
+  const points = 64;
+
+  const rings: string[] = [];
+  for (let r = rMin; r <= rMax; r += step) {
+    const pts: [number, number][] = [];
+    for (let k = 0; k < points; k++) {
+      const a = (k / points) * Math.PI * 2;
+      const rr = r * (1 + wobble(base, a) + (r / rMax) * wobble(rough, a));
+      // Flattened vertically so the chart sits wide across the hero.
+      pts.push([cx + rr * Math.cos(a), cy + rr * Math.sin(a) * 0.62]);
+    }
+
+    // Closed Catmull-Rom spline through the points, as cubic Béziers.
+    const at = (k: number) => pts[(k + points) % points];
+    let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for (let k = 0; k < points; k++) {
+      const [p0, p1, p2, p3] = [at(k - 1), at(k), at(k + 1), at(k + 2)];
+      const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+      const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+      const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += `C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+    }
+    rings.push(`${d}Z`);
+  }
+  return rings;
+}
+
+// ─── Hooks ───────────────────────────────────────────────────────────────────
+
+/**
+ * The section the reader is in: the last one whose top has crossed
+ * ACTIVE_LINE. Null on the hero, before any section has arrived.
+ *
+ * One measurement per frame, in document order, so exactly one section is
+ * current at a time — rather than six observers racing, where whichever fired
+ * last won and nothing ever cleared.
+ */
 function useActiveSection(ids: string[]) {
-  const [active, setActive] = useState("about");
+  const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
-    const observers: IntersectionObserver[] = [];
+    let frame = 0;
 
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActive(id);
-        },
-        { threshold: 0.3 }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight * ACTIVE_LINE;
+      let current: string | null = null;
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= line) current = id;
+      }
 
-    return () => observers.forEach((o) => o.disconnect());
+      // The last section can be too short to ever reach the line. Once the
+      // page can't scroll further, it is the one being read.
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom && ids.length > 0) current = ids[ids.length - 1];
+
+      setActive((prev) => (prev === current ? prev : current));
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [ids]);
 
   return active;
@@ -213,7 +305,151 @@ function useFadeIn(ref: React.RefObject<Element | null>) {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function GradientButton({
+/**
+ * Signature detail: a sounding line down the left edge. The fill tracks reading
+ * progress, so the page reads as finite, and a tick marks each section, lighting
+ * once you reach it. Desktop only — there is no room for it beside phone content.
+ *
+ * It owns its scroll listener so the rest of the page never re-renders on
+ * scroll: the fill moves by writing `transform` directly, and the component
+ * itself only re-renders when a tick changes state.
+ */
+function SoundingLine({ sectionIds }: { sectionIds: string[] }) {
+  const fillRef = useRef<HTMLDivElement>(null);
+  const ticksRef = useRef<number[]>([]);
+  const [ticks, setTicks] = useState<number[]>([]);
+  const [lit, setLit] = useState(0);
+
+  useEffect(() => {
+    let frame = 0;
+
+    const scrollable = () => document.documentElement.scrollHeight - window.innerHeight;
+
+    // A section's tick sits at the progress where its top crosses ACTIVE_LINE —
+    // the same moment useActiveSection makes it current.
+    const measure = () => {
+      const max = scrollable();
+      const next =
+        max <= 0
+          ? []
+          : sectionIds
+              .map((id) => document.getElementById(id))
+              .filter((el): el is HTMLElement => el !== null)
+              .map((el) => {
+                const top = el.getBoundingClientRect().top + window.scrollY;
+                return Math.min(1, Math.max(0, (top - window.innerHeight * ACTIVE_LINE) / max));
+              });
+      ticksRef.current = next;
+      setTicks(next);
+    };
+
+    const update = () => {
+      frame = 0;
+      const max = scrollable();
+      const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      if (fillRef.current) fillRef.current.style.transform = `scaleY(${progress})`;
+      const count = ticksRef.current.filter((t) => progress >= t).length;
+      setLit((prev) => (prev === count ? prev : count));
+    };
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    // Re-measure whenever layout shifts — web fonts landing, the window resizing.
+    const resize = new ResizeObserver(() => {
+      measure();
+      update();
+    });
+    resize.observe(document.body);
+
+    measure();
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      resize.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [sectionIds]);
+
+  return (
+    <div
+      aria-hidden="true"
+      className="hidden md:block"
+      style={{
+        position: "fixed",
+        left: 24,
+        top: 0,
+        bottom: 0,
+        width: 1,
+        background: "var(--border)",
+        zIndex: 60,
+      }}
+    >
+      <div ref={fillRef} className="sounding-fill" />
+      {ticks.map((t, i) => (
+        <span
+          key={i}
+          className="sounding-tick"
+          data-lit={i < lit ? "" : undefined}
+          style={{ top: `${t * 100}%` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The hero's one bright element: a bathymetric chart of a seamount, drawn in
+ * hairlines, with every fifth contour stronger (as index contours are on a real
+ * chart) and one in the accent. Pauses its drift while the hero is off screen.
+ */
+function ContourField() {
+  const rings = useMemo(buildContours, []);
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const ACCENT_RING = 10;
+
+  useEffect(() => {
+    const el = fieldRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      el.classList.toggle("contour-paused", !entry.isIntersecting);
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div ref={fieldRef} className="contour-field" aria-hidden="true">
+      <svg
+        className="contour-drift"
+        viewBox="0 0 1600 900"
+        preserveAspectRatio="xMidYMid slice"
+        style={{ width: "100%", height: "100%", display: "block" }}
+      >
+        {rings.map((d, i) => {
+          const accent = i === ACCENT_RING;
+          const index = i % 5 === 0;
+          return (
+            <path
+              key={i}
+              d={d}
+              fill="none"
+              vectorEffect="non-scaling-stroke"
+              strokeWidth={1}
+              stroke={accent ? "var(--accent)" : "var(--text-primary)"}
+              strokeOpacity={accent ? 0.55 : index ? 0.14 : 0.07}
+            />
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function PrimaryButton({
   children,
   href = "#",
   onClick,
@@ -226,8 +462,16 @@ function GradientButton({
     <a
       href={href}
       onClick={onClick}
-      className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold text-white text-base transition-transform hover:scale-105 active:scale-95"
-      style={{ background: "linear-gradient(90deg, #d946ef, #8b5cf6, #22d3ee)", fontFamily: "var(--font-display)" }}
+      className="inline-flex items-center justify-center px-5 transition-colors"
+      style={{
+        height: 44,
+        borderRadius: "var(--radius-control)",
+        background: "var(--text-primary)",
+        color: "var(--background)",
+        fontSize: 15,
+        fontWeight: 500,
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+      }}
     >
       {children}
     </a>
@@ -251,14 +495,26 @@ function ContactForm() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    background: "#1a1a1a",
+    background: "var(--raised)",
     border: "1px solid var(--border)",
-    borderRadius: 12,
-    padding: "12px 16px",
-    color: "white",
-    fontFamily: "var(--font-body)",
+    borderRadius: "var(--radius-control)",
+    padding: "10px 12px",
+    color: "var(--text-primary)",
+    fontFamily: "var(--font-sans)",
     fontSize: 14,
-    outline: "none",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    marginBottom: 6,
+    fontSize: 13,
+    fontWeight: 500,
+    color: "var(--text-secondary)",
+  };
+
+  // Clear a stale result as soon as the visitor starts correcting the form.
+  const touched = () => {
+    if (status === "error" || status === "success") setStatus("idle");
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -291,94 +547,107 @@ function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSend} className="flex flex-col gap-4 text-left mb-8">
-      <input
-        type="email"
-        placeholder="Your email"
-        value={fromEmail}
-        onChange={(e) => setFromEmail(e.target.value)}
-        required
-        style={inputStyle}
-      />
-      <input
-        type="text"
-        placeholder="Subject"
-        value={subject}
-        onChange={(e) => setSubject(e.target.value)}
-        style={inputStyle}
-      />
-      <textarea
-        placeholder="Your message"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        rows={5}
-        required
-        style={{ ...inputStyle, resize: "vertical" }}
-      />
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-bold text-white text-base transition-transform hover:scale-105 active:scale-95 self-center"
-        style={{
-          background: "linear-gradient(90deg, #d946ef, #8b5cf6, #22d3ee)",
-          fontFamily: "var(--font-display)",
-          border: "none",
-          cursor: status === "sending" ? "wait" : "pointer",
-          opacity: status === "sending" ? 0.7 : 1,
-        }}
-      >
-        {status === "sending" ? "Sending…" : "Send an Email →"}
-      </button>
-      {status === "success" && (
-        <p className="text-sm text-center" style={{ color: "#22d3ee" }}>
-          Message sent — thanks for reaching out!
-        </p>
-      )}
-      {status === "error" && (
-        <p className="text-sm text-center" style={{ color: "#d946ef" }}>
-          Something went wrong. Please email {CONTACT_EMAIL} directly.
-        </p>
-      )}
-    </form>
-  );
-}
+    <form onSubmit={handleSend} className="flex flex-col gap-5 text-left">
+      <div>
+        <label htmlFor="contact-email" style={labelStyle}>
+          Your email
+        </label>
+        <input
+          id="contact-email"
+          type="email"
+          autoComplete="email"
+          value={fromEmail}
+          onChange={(e) => {
+            setFromEmail(e.target.value);
+            touched();
+          }}
+          required
+          style={inputStyle}
+        />
+      </div>
 
-function AmbientGlows() {
-  return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-      <div
-        style={{
-          position: "absolute", top: "-20%", left: "-15%",
-          width: "60vw", height: "60vw",
-          background: "radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)",
-          borderRadius: "50%",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute", bottom: "-20%", right: "-15%",
-          width: "60vw", height: "60vw",
-          background: "radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)",
-          borderRadius: "50%",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute", top: "40%", right: "-10%",
-          width: "40vw", height: "40vw",
-          background: "radial-gradient(ellipse, rgba(217,70,239,0.08) 0%, transparent 70%)",
-          borderRadius: "50%",
-        }}
-      />
-    </div>
+      <div>
+        <label htmlFor="contact-subject" style={labelStyle}>
+          Subject
+        </label>
+        <input
+          id="contact-subject"
+          type="text"
+          value={subject}
+          onChange={(e) => {
+            setSubject(e.target.value);
+            touched();
+          }}
+          style={inputStyle}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="contact-message" style={labelStyle}>
+          Message
+        </label>
+        <textarea
+          id="contact-message"
+          value={message}
+          onChange={(e) => {
+            setMessage(e.target.value);
+            touched();
+          }}
+          rows={5}
+          required
+          style={{ ...inputStyle, resize: "vertical" }}
+        />
+      </div>
+
+      <div className="flex items-center gap-4 flex-wrap">
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="inline-flex items-center justify-center px-5 transition-colors"
+          style={{
+            height: 44,
+            borderRadius: "var(--radius-control)",
+            background: "var(--text-primary)",
+            color: "var(--background)",
+            fontSize: 15,
+            fontWeight: 500,
+            fontFamily: "var(--font-sans)",
+            border: "none",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+            cursor: status === "sending" ? "wait" : "pointer",
+            opacity: status === "sending" ? 0.7 : 1,
+          }}
+        >
+          {status === "sending" ? "Sending" : "Send message"}
+        </button>
+
+        <div role="status" aria-live="polite" style={{ fontSize: 13 }}>
+          {status === "success" && (
+            <span style={{ color: "var(--positive)" }}>Sent — thanks for reaching out</span>
+          )}
+          {status === "error" && (
+            <span style={{ color: "var(--negative)" }}>
+              Could not send — email{" "}
+              <a
+                href={GMAIL_COMPOSE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--negative)", textDecoration: "underline" }}
+              >
+                {CONTACT_EMAIL}
+              </a>{" "}
+              directly
+            </span>
+          )}
+        </div>
+      </div>
+    </form>
   );
 }
 
 function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
   return (
-    <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
-      <AmbientGlows />
-
+    <div style={{ background: "var(--background)", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
       {/* ── Navbar (matches main page) ── */}
       <nav
         style={{
@@ -388,11 +657,11 @@ function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
       >
         <div
           style={{
-            background: "rgba(13,13,13,0.9)",
+            background: "rgba(11,13,20,0.92)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "9999px",
-            padding: "8px 16px",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-panel)",
+            padding: 8,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -401,25 +670,18 @@ function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
           <a
             href="/"
             onClick={onBack}
-            className="flex items-center gap-2 transition-colors hover:text-white"
-            style={{ color: "#94a3b8", fontFamily: "var(--font-display)", fontSize: 13, fontWeight: 600 }}
+            className="flex items-center gap-2 px-3 transition-colors"
+            style={{
+              height: 32,
+              borderRadius: 8,
+              color: "var(--text-secondary)",
+              fontSize: 13,
+              fontWeight: 500,
+            }}
           >
-            <div
-              style={{
-                width: 32, height: 32,
-                background: "linear-gradient(135deg, #d946ef, #22d3ee)",
-                borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 13, color: "white",
-              }}
-            >
-              GG
-            </div>
-            ← Back to Portfolio
+            Back to portfolio
           </a>
-          <span
-            className="px-3 py-1 rounded-full"
-            style={{ background: "rgba(217,70,239,0.15)", color: "#d946ef", fontSize: 12, fontWeight: 600, fontFamily: "var(--font-display)" }}
-          >
+          <span className="meta px-3" style={{ fontSize: 12 }}>
             View only
           </span>
         </div>
@@ -433,7 +695,7 @@ function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
         >
           <div
             style={{
-              borderRadius: 16, overflow: "hidden",
+              borderRadius: "var(--radius-card)", overflow: "hidden",
               border: "1px solid var(--border)",
               background: "var(--card)",
               height: "calc(100vh - 140px)",
@@ -454,8 +716,14 @@ function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <h2
-      className="text-4xl md:text-5xl font-black text-center text-white mb-16"
-      style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.02em" }}
+      className="reveal text-center mb-12"
+      style={{
+        ...stagger(0),
+        fontSize: 28,
+        fontWeight: 500,
+        color: "var(--text-primary)",
+        letterSpacing: "-0.01em",
+      }}
     >
       {children}
     </h2>
@@ -466,41 +734,38 @@ function ExperienceCard({
   company,
   role,
   dates,
-  accent,
+  figures,
   description,
-}: (typeof EXPERIENCE)[0]) {
-  const isM = accent === "magenta";
-  const barColor = isM ? "#d946ef" : "#22d3ee";
-  const subtitleColor = isM ? "#d946ef" : "#22d3ee";
-
+}: {
+  company: string;
+  role: string;
+  dates: string;
+  figures: string[];
+  description: string;
+}) {
   return (
     <div
-      className="flex rounded-2xl overflow-hidden"
-      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+      className="p-6"
+      style={{
+        background: "var(--card)",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-card)",
+      }}
     >
-      <div className="w-1 flex-shrink-0" style={{ background: barColor }} />
-      <div className="p-6 flex-1">
-        <h3
-          className="text-xl font-bold text-white text-center mb-2"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
+      <div className="flex items-baseline justify-between gap-4 flex-wrap mb-1">
+        <h3 style={{ fontSize: 18, fontWeight: 500, color: "var(--text-primary)" }}>
           {company}
         </h3>
-        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <span className="font-semibold text-sm" style={{ color: subtitleColor }}>
-            {role}
-          </span>
-          <span
-            className="text-xs italic px-3 py-1 rounded-full"
-            style={{ background: "#1e1e1e", color: "#94a3b8", border: "1px solid var(--border)" }}
-          >
-            {dates}
-          </span>
-        </div>
-        <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
-          {description}
-        </p>
+        <span className="meta" style={{ fontSize: 12 }}>
+          {dates}
+        </span>
       </div>
+      <p className="mb-4" style={{ fontSize: 14, color: "var(--text-secondary)" }}>
+        {role}
+      </p>
+      <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-secondary)", maxWidth: "66ch" }}>
+        {withFigures(description, figures)}
+      </p>
     </div>
   );
 }
@@ -508,60 +773,74 @@ function ExperienceCard({
 function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
   return (
     <div
-      className="rounded-2xl overflow-hidden flex flex-col transition-transform hover:-translate-y-1 hover:shadow-xl"
-      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+      className="flex flex-col h-full p-5 transition-colors hover:bg-white/[0.02]"
+      style={{
+        background: "var(--card)",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-card)",
+      }}
     >
-      <div
-        className="relative overflow-hidden h-44 flex items-center justify-center"
-        style={{ background: "linear-gradient(135deg, rgba(217,70,239,0.12), rgba(34,211,238,0.12))" }}
+      <h3 className="mb-2" style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)" }}>
+        {project.title}
+      </h3>
+      <p
+        className="mb-4 flex-1"
+        style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-secondary)" }}
       >
-        <span style={{ fontSize: 56, lineHeight: 1 }} role="img" aria-label={project.imgAlt}>
-          {project.icon}
-        </span>
-      </div>
-      <div className="p-5 flex flex-col flex-1">
-        <h3
-          className="text-lg font-bold text-white mb-2"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          {project.title}
-        </h3>
-        <p className="text-sm leading-relaxed mb-4 flex-1" style={{ color: "#94a3b8" }}>
-          {project.description}
-        </p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.tags.map((t) => (
-            <span
-              key={t}
-              className="text-xs px-2 py-1 rounded-full font-medium"
-              style={{
-                background: "#1e1e1e",
-                color: "#22d3ee",
-                border: "1px solid rgba(34,211,238,0.2)",
-              }}
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            href={project.github}
-            className="text-xs font-semibold px-4 py-2 rounded-full transition-colors hover:bg-white/10"
-            style={{ border: "1px solid var(--border)", color: "#f1f5f9" }}
+        {withFigures(project.description, project.figures)}
+      </p>
+      <div className="flex flex-wrap gap-2 mb-5">
+        {project.tags.map((t) => (
+          <span
+            key={t}
+            className="meta px-2 py-1"
+            style={{
+              fontSize: 11,
+              /* secondary, not muted: muted is only 4.34:1 on the raised surface */
+              color: "var(--text-secondary)",
+              background: "var(--raised)",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+            }}
           >
-            GitHub ↗
+            {t}
+          </span>
+        ))}
+      </div>
+      <div className="flex items-center gap-3">
+        <a
+          href={project.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center px-3 transition-colors hover:bg-white/5"
+          style={{
+            height: 32,
+            borderRadius: 8,
+            border: "1px solid var(--border)",
+            color: "var(--text-secondary)",
+            fontSize: 13,
+          }}
+        >
+          GitHub profile
+        </a>
+        {project.demo && (
+          <a
+            href={project.demo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 transition-colors"
+            style={{
+              height: 32,
+              borderRadius: 8,
+              background: "var(--text-primary)",
+              color: "var(--background)",
+              fontSize: 13,
+              fontWeight: 500,
+            }}
+          >
+            Live demo
           </a>
-          {project.demo && (
-            <a
-              href={project.demo}
-              className="text-xs font-semibold px-4 py-2 rounded-full"
-              style={{ background: "linear-gradient(90deg,#d946ef,#22d3ee)", color: "white" }}
-            >
-              Live Demo ↗
-            </a>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
@@ -569,25 +848,20 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
 
 function SkillTile({ label }: { label: string }) {
   return (
-    <div
-      className="px-4 py-2 rounded-xl text-sm font-semibold text-white text-center cursor-default transition-all duration-200 hover:scale-105"
+    <span
+      className="meta inline-flex items-center px-3 transition-colors hover:bg-white/5"
       style={{
-        background: "#1a1a1a",
-        border: "1px solid rgba(255,255,255,0.08)",
-        fontFamily: "var(--font-display)",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow =
-          "0 0 16px 2px rgba(217,70,239,0.35), 0 0 32px 4px rgba(34,211,238,0.15)";
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(217,70,239,0.4)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = "";
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
+        height: 32,
+        fontSize: 13,
+        /* secondary, not muted: muted is only 4.34:1 on the raised surface */
+        color: "var(--text-secondary)",
+        background: "var(--raised)",
+        border: "1px solid var(--border)",
+        borderRadius: 8,
       }}
     >
       {label}
-    </div>
+    </span>
   );
 }
 
@@ -611,8 +885,7 @@ function FadeSection({ id, children, className = "" }: { id?: string; children: 
 // ─── Main App ────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const typewriter = useTypewriter(TYPEWRITER_PHRASES);
-  const active = useActiveSection(NAV_ITEMS.map((n) => n.id));
+  const active = useActiveSection(SECTION_IDS);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showTop, setShowTop] = useState(false);
@@ -629,17 +902,20 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Both values only flip at a threshold, so React skips the re-render on
+    // every other scroll event. Reading progress lives in SoundingLine.
     const onScroll = () => {
       setScrolled(window.scrollY > 40);
       setShowTop(window.scrollY > 400);
     };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const scrollTo = (id: string) => {
     setMenuOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById(id)?.scrollIntoView({ behavior: scrollBehavior() });
   };
 
   const goToResume = (e: React.MouseEvent) => {
@@ -660,9 +936,24 @@ export default function App() {
     return <ResumePage onBack={goHome} />;
   }
 
+  const navItemStyle = (isActive: boolean): React.CSSProperties => ({
+    padding: "0 12px",
+    height: 32,
+    display: "inline-flex",
+    alignItems: "center",
+    borderRadius: 8,
+    fontSize: 13,
+    fontWeight: 500,
+    cursor: "pointer",
+    border: isActive ? "1px solid var(--border)" : "1px solid transparent",
+    transition: "background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease)",
+    background: isActive ? "var(--raised)" : "transparent",
+    color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+  });
+
   return (
-    <div style={{ background: "#0d0d0d", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
-      <AmbientGlows />
+    <div style={{ background: "var(--background)", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
+      <SoundingLine sectionIds={SECTION_IDS} />
 
       {/* ── Navbar ── */}
       <nav
@@ -673,35 +964,21 @@ export default function App() {
       >
         <div
           style={{
-            background: scrolled ? "rgba(13,13,13,0.9)" : "rgba(20,20,20,0.7)",
+            background: scrolled ? "rgba(11,13,20,0.92)" : "rgba(17,20,28,0.72)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "9999px",
-            padding: "8px 16px",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-panel)",
+            padding: 8,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            transition: "background 0.3s",
+            transition: "background-color var(--dur-enter) var(--ease)",
           }}
         >
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div
-              style={{
-                width: 32, height: 32,
-                background: "linear-gradient(135deg, #d946ef, #22d3ee)",
-                borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 13, color: "white",
-              }}
-            >
-              GG
-            </div>
-            <span
-              style={{ color: "#94a3b8", fontSize: 13, fontFamily: "var(--font-body)" }}
-            >
-              @giangelo19
-            </span>
-          </div>
+          {/* Logo — the handle, set in mono. No tile, no gradient. */}
+          <span className="meta px-2" style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            @giangelo19
+          </span>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
@@ -709,20 +986,9 @@ export default function App() {
               <button
                 key={item.id}
                 onClick={() => scrollTo(item.id)}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "9999px",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  fontFamily: "var(--font-display)",
-                  cursor: "pointer",
-                  border: "none",
-                  transition: "all 0.2s",
-                  background: active === item.id ? "rgba(217,70,239,0.15)" : "transparent",
-                  color: active === item.id ? "#d946ef" : "#94a3b8",
-                }}
+                aria-current={active === item.id ? "true" : undefined}
+                style={navItemStyle(active === item.id)}
               >
-                <span className="mr-1">{item.emoji}</span>
                 {item.label}
               </button>
             ))}
@@ -732,6 +998,8 @@ export default function App() {
           <button
             className="md:hidden flex flex-col gap-1.5 p-2"
             onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
             style={{ background: "none", border: "none", cursor: "pointer" }}
           >
             {[0, 1, 2].map((i) => (
@@ -739,15 +1007,16 @@ export default function App() {
                 key={i}
                 style={{
                   display: "block", width: 20, height: 2,
-                  background: "#94a3b8", borderRadius: 2,
-                  transition: "all 0.2s",
+                  background: "var(--text-secondary)", borderRadius: 2,
+                  transition: "transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease)",
+                  opacity: menuOpen && i === 1 ? 0 : 1,
                   transform:
                     menuOpen
                       ? i === 0
                         ? "rotate(45deg) translate(3px, 3px)"
                         : i === 2
                           ? "rotate(-45deg) translate(3px, -3px)"
-                          : "scale(0)"
+                          : "none"
                       : "none",
                 }}
               />
@@ -760,11 +1029,11 @@ export default function App() {
           <div
             style={{
               marginTop: 8,
-              background: "rgba(20,20,20,0.95)",
+              background: "rgba(17,20,28,0.96)",
               backdropFilter: "blur(16px)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 20,
-              padding: "12px 8px",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius-panel)",
+              padding: 8,
               display: "flex",
               flexDirection: "column",
               gap: 4,
@@ -774,21 +1043,15 @@ export default function App() {
               <button
                 key={item.id}
                 onClick={() => scrollTo(item.id)}
+                aria-current={active === item.id ? "true" : undefined}
                 style={{
-                  padding: "10px 16px",
-                  borderRadius: 12,
+                  ...navItemStyle(active === item.id),
+                  height: 40,
                   fontSize: 14,
-                  fontWeight: 600,
-                  fontFamily: "var(--font-display)",
-                  cursor: "pointer",
-                  border: "none",
+                  justifyContent: "flex-start",
                   textAlign: "left",
-                  background: active === item.id ? "rgba(217,70,239,0.15)" : "transparent",
-                  color: active === item.id ? "#d946ef" : "#94a3b8",
-                  transition: "all 0.2s",
                 }}
               >
-                <span className="mr-2">{item.emoji}</span>
                 {item.label}
               </button>
             ))}
@@ -799,101 +1062,79 @@ export default function App() {
       <div style={{ position: "relative", zIndex: 1 }}>
         {/* ── Hero ── */}
         <section
-          className="min-h-screen flex flex-col items-center justify-center text-center px-4"
+          className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center text-center px-4"
           style={{ paddingTop: 96 }}
         >
-          <p
-            className="text-base mb-3"
-            style={{ color: "#94a3b8", fontFamily: "var(--font-body)" }}
-          >
-            Hi! My name is
-          </p>
-          <h1
-            className="gradient-text font-black mb-4"
-            style={{
-              fontSize: "clamp(3rem, 8vw, 7rem)",
-              lineHeight: 1.15,
-              letterSpacing: "-0.03em",
-              fontFamily: "var(--font-display)",
-              paddingBottom: "0.05em",
-            }}
-          >
-            Gian Angelo Tongzon
-          </h1>
-          <div
-            className="text-xl md:text-2xl font-bold text-white mb-8 h-9 flex items-center justify-center"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            {typewriter}
-            <span className="cursor-blink ml-0.5" style={{ color: "#d946ef" }}>|</span>
-          </div>
-          <GradientButton href="/resume" onClick={goToResume}>View Resume →</GradientButton>
-          {/* Social icons */}
-          <div className="flex items-center gap-5 mt-8">
-            {[
-              { label: "GitHub", href: "https://github.com/giangelo19", icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-              ) },
-              { label: "LinkedIn", href: "https://linkedin.com/in/gian-angelo-tongzon-7b18562b2", icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-              ) },
-              { label: "Email", href: GMAIL_COMPOSE_URL, icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-.883.53-1.659 1.348-1.977L12 9.184 22.652 3.48C23.47 3.798 24 4.574 24 5.457z"/></svg>
-              ) },
-            ].map(({ label, href, icon }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="transition-colors hover:text-white"
-                style={{ color: "#94a3b8" }}
-              >
-                {icon}
-              </a>
-            ))}
+          <ContourField />
+
+          <div className="relative flex flex-col items-center" style={{ zIndex: 1 }}>
+            <h1
+              style={{
+                fontSize: "clamp(2rem, 6vw, 4.5rem)",
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+                fontWeight: 500,
+                color: "var(--text-primary)",
+                marginBottom: 20,
+              }}
+            >
+              Gian Angelo Tongzon
+            </h1>
+            <p
+              className="mb-10"
+              style={{
+                fontSize: "clamp(1rem, 2vw, 1.25rem)",
+                color: "var(--text-secondary)",
+                maxWidth: "40ch",
+              }}
+            >
+              Full-stack developer and computer vision researcher
+            </p>
+            <PrimaryButton href="/resume" onClick={goToResume}>
+              View resume
+            </PrimaryButton>
           </div>
         </section>
 
-        {/* ── About Me ── */}
-        <FadeSection id="about" className="py-28 px-4">
+        {/* ── About ── */}
+        <FadeSection id="about" className="py-20 px-4">
           <div style={{ maxWidth: 760, margin: "0 auto" }}>
-            <SectionHeading>👋 About Me</SectionHeading>
+            <SectionHeading>About</SectionHeading>
             <div
-              className="rounded-2xl p-8 md:p-10"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+              className="reveal p-8"
+              style={{
+                ...stagger(1),
+                background: "var(--card)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius-card)",
+              }}
             >
               <p
-                className="text-base md:text-lg leading-relaxed"
-                style={{ color: "#cbd5e1", fontFamily: "var(--font-body)" }}
+                style={{
+                  fontSize: 16,
+                  lineHeight: 1.7,
+                  color: "var(--text-secondary)",
+                  maxWidth: "66ch",
+                }}
               >
-                I'm a fourth-year BS Computer Science student at the{" "}
-                <span style={{ color: "#22d3ee", fontWeight: 600 }}>
-                  University of the Philippines Tacloban College
-                </span>
-                , based in the Philippines. I work part-time as a full-stack web developer, mostly
-                building{" "}
-                <span style={{ color: "#d946ef", fontWeight: 600 }}>
-                  Laravel and PHP applications
-                </span>{" "}
-                with MySQL, JavaScript, and Tailwind CSS. I'm also working on a{" "}
-                <span style={{ color: "#8b5cf6", fontWeight: 600 }}>
-                  computer vision thesis
-                </span>{" "}
-                using PyTorch.
+                I'm a fourth-year BS Computer Science student at the University of the Philippines
+                Tacloban College, based in the Philippines. I work part-time as a full-stack web
+                developer, mostly building Laravel and PHP applications with MySQL, JavaScript, and
+                Tailwind CSS. I'm also working on a computer vision thesis using PyTorch.
               </p>
             </div>
           </div>
         </FadeSection>
 
         {/* ── Experience ── */}
-        <FadeSection id="experience" className="py-28 px-4">
+        <FadeSection id="experience" className="py-20 px-4">
           <div style={{ maxWidth: 760, margin: "0 auto" }}>
-            <SectionHeading>💼 Experience</SectionHeading>
-            <div className="flex flex-col gap-5">
-              {EXPERIENCE.map((exp) => (
-                <ExperienceCard key={exp.company} {...exp} />
+            <SectionHeading>Experience</SectionHeading>
+            <div className="flex flex-col gap-4">
+              {EXPERIENCE.map((exp, i) => (
+                <div key={exp.company} className="reveal" style={stagger(i + 1)}>
+                  <ExperienceCard {...exp} />
+                </div>
               ))}
             </div>
           </div>
@@ -902,31 +1143,31 @@ export default function App() {
         {/* ── Projects ── */}
         <FadeSection id="projects" className="py-28 px-4">
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-            <SectionHeading>🚀 Projects</SectionHeading>
-            <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {PROJECTS.map((p) => (
-                <ProjectCard key={p.title} project={p} />
+            <SectionHeading>Projects</SectionHeading>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {PROJECTS.map((p, i) => (
+                <div key={p.title} className="reveal" style={stagger(i + 1)}>
+                  <ProjectCard project={p} />
+                </div>
               ))}
             </div>
           </div>
         </FadeSection>
 
         {/* ── Skills ── */}
-        <FadeSection id="skills" className="py-28 px-4">
+        <FadeSection id="skills" className="py-20 px-4">
           <div style={{ maxWidth: 900, margin: "0 auto" }}>
-            <SectionHeading>⚡ Skills</SectionHeading>
-            <div className="flex flex-col gap-10">
-              {SKILLS.map((group) => (
-                <div key={group.group}>
+            <SectionHeading>Skills</SectionHeading>
+            <div className="flex flex-col gap-8">
+              {SKILLS.map((group, i) => (
+                <div key={group.group} className="reveal" style={stagger(i + 1)}>
                   <p
-                    className="text-xs font-bold uppercase tracking-widest mb-4"
-                    style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}
+                    className="mb-3"
+                    style={{ fontSize: 13, fontWeight: 500, color: "var(--text-secondary)" }}
                   >
                     {group.group}
                   </p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {group.items.map((item) => (
                       <SkillTile key={item} label={item} />
                     ))}
@@ -938,12 +1179,14 @@ export default function App() {
         </FadeSection>
 
         {/* ── Education ── */}
-        <FadeSection id="education" className="py-28 px-4">
+        <FadeSection id="education" className="py-20 px-4">
           <div style={{ maxWidth: 760, margin: "0 auto" }}>
-            <SectionHeading>🎓 Education</SectionHeading>
-            <div className="flex flex-col gap-5">
-              {EDUCATION.map((edu) => (
-                <ExperienceCard key={edu.company} {...edu} />
+            <SectionHeading>Education</SectionHeading>
+            <div className="flex flex-col gap-4">
+              {EDUCATION.map((edu, i) => (
+                <div key={edu.company} className="reveal" style={stagger(i + 1)}>
+                  <ExperienceCard {...edu} />
+                </div>
               ))}
             </div>
           </div>
@@ -951,24 +1194,34 @@ export default function App() {
 
         {/* ── Contact ── */}
         <FadeSection id="contact" className="py-28 px-4">
-          <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
-            <SectionHeading>✉️ Contact</SectionHeading>
-            <p className="text-base mb-8" style={{ color: "#94a3b8", fontFamily: "var(--font-body)" }}>
-              Have a project in mind or just want to say hi? My inbox is open.
+          <div style={{ maxWidth: 600, margin: "0 auto" }}>
+            <SectionHeading>Contact</SectionHeading>
+            <p
+              className="reveal text-center mb-10"
+              style={{ ...stagger(1), fontSize: 15, color: "var(--text-secondary)" }}
+            >
+              Email me directly or use the form below
             </p>
-            <ContactForm />
-            <div className="flex items-center justify-center gap-5 mt-8">
-              <a href="https://github.com/giangelo19" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
-                GitHub
-              </a>
-              <span style={{ color: "#333" }}>·</span>
-              <a href="https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
-                LinkedIn
-              </a>
-              <span style={{ color: "#333" }}>·</span>
-              <a href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold transition-colors hover:text-white" style={{ color: "#94a3b8", fontFamily: "var(--font-display)" }}>
-                Email
-              </a>
+            <div className="reveal" style={stagger(2)}>
+              <ContactForm />
+            </div>
+            <div className="reveal flex items-center justify-center gap-6 mt-10" style={stagger(3)}>
+              {[
+                { label: "GitHub", href: "https://github.com/giangelo19" },
+                { label: "LinkedIn", href: "https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" },
+                { label: "Email", href: GMAIL_COMPOSE_URL },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors"
+                  style={{ fontSize: 14, color: "var(--text-secondary)" }}
+                >
+                  {label}
+                </a>
+              ))}
             </div>
           </div>
         </FadeSection>
@@ -978,48 +1231,28 @@ export default function App() {
           className="py-10 px-4 text-center"
           style={{ borderTop: "1px solid var(--border)" }}
         >
-          <p
-            className="text-sm mb-3"
-            style={{ color: "#555", fontFamily: "var(--font-display)" }}
-          >
-            <span className="gradient-text font-bold">Gian Angelo Tongzon</span>
-            {"  "}·{"  "}© {new Date().getFullYear()}
+          <p className="meta" style={{ fontSize: 12 }}>
+            Gian Angelo Tongzon · © {new Date().getFullYear()}
           </p>
-          <div className="flex items-center justify-center gap-4">
-            {[
-              { label: "GitHub", href: "https://github.com/giangelo19" },
-              { label: "LinkedIn", href: "https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" },
-              { label: "Email", href: GMAIL_COMPOSE_URL },
-            ].map(({ label, href }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs transition-colors hover:text-white"
-                style={{ color: "#555", fontFamily: "var(--font-display)" }}
-              >
-                {label}
-              </a>
-            ))}
-          </div>
         </footer>
       </div>
 
       {/* Scroll to top */}
       {showTop && (
         <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 z-50 flex items-center justify-center rounded-full text-white transition-transform hover:scale-110 active:scale-95"
+          onClick={() => window.scrollTo({ top: 0, behavior: scrollBehavior() })}
+          className="fixed bottom-6 right-6 z-50 flex items-center justify-center transition-colors hover:bg-white/5"
           style={{
-            width: 48, height: 48,
-            background: "linear-gradient(135deg, #d946ef, #8b5cf6)",
-            boxShadow: "0 0 20px rgba(217,70,239,0.4)",
-            border: "none", cursor: "pointer",
+            width: 44, height: 44,
+            borderRadius: 22,
+            background: "var(--raised)",
+            border: "1px solid var(--border)",
+            color: "var(--text-secondary)",
+            cursor: "pointer",
           }}
           aria-label="Scroll to top"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 15l-6-6-6 6"/>
           </svg>
         </button>
