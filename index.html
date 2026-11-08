@@ -733,33 +733,42 @@ function buildBuilding(b){
 }
 
 /* ---------------------------- the walker ----------------------------
-   An original character: dark messy hair, teal hoodie, grey jeans.
-   Rows are 16 wide; the body and legs are shared between directions. */
-const PAL={".":null,"k":"#191827","h":"#2b2436","H":"#4b4060","s":"#f4caa0","S":"#d2a070",
-  "j":"#2a9d8f","J":"#5fd0c0","p":"#4a4f63","b":"#e9e6dc"};
-const BODY_FRONT=["....kjjjjjjk....","...kjjjjjjjjk...","..kjjjJJJJjjjk..","..kjjjJJJJjjjk..",
-"..kjsjJJJJjsjk..","..kjsjjjjjjsjk..","...kjjjjjjjjk..."];
-const DOWN_UPPER=["................",".....kkkkkk.....","...kkhhhhhhkk...","..khhHHHhhhhhk..",
-".khhHhhhhhhhhhk.",".khhhhhhhhhhhhk.",".khshhhshhhhshk.",".khssssssssssshk",
-".kssksssssskssk.","..kssssssssssk..","...kssSSSSssk...","....kkkkkkkk...."].concat(BODY_FRONT);
-const UP_UPPER=["................",".....kkkkkk.....","...kkhhhhhhkk...","..khhHHHhhhhhk..",
-".khhHhhhhhhhhhk.",".khhhhhhhhhhhhk.",".khhhhhhhhhhhhk.",".khhhhHHhhhhhhk.",
-".khhhhhhhhhhhhk.","..khhhhhhhhhhk..","...khhhhhhhhk...","....kkkkkkkk...."].concat(BODY_FRONT);
-const LEGS_STAND=["....kppppppk....","....kppkkppk....","....kppkkppk....","....kppkkppk....","....kbbkkbbk...."];
-const LEGS_WALK=["....kppppppk....","...kpppkkppk....","...kppk.kbbk....","...kppk.........","...kbbk........."];
-const RIGHT_HEAD=["................","....kkkkkk......","...khhhhhhkk....","..khhHHhhhhhk...",
-".khhhhhhhhhhhk..",".khhhhhhhshhsk..",".khhhhhssssssk..",".khhhhsssskssk..",
-".khhhsssssssssk.","..khhssssssSk...","...kkssssSk.....","....kkkkkk......"];
-const RIGHT_STAND=RIGHT_HEAD.concat(["....kjjjjk......","...kjjjjjk......","...kjjJJjjk.....",
-"...kjjJJjjk.....","...kjjJJjsk.....","...kjjjjjsk.....","....kjjjjk......","....kppppk......",
-"....kppppk......","....kppppk......","....kppppk......","....kbbbbk......"]);
-const RIGHT_WALK_A=RIGHT_HEAD.concat(["....kjjjjk......","...kjjjjjk......","..kjjjJJjk......",
-"..kjjjJJjk......","..ksjjJJjk......","...kjjjjjk......","....kjjjjk......","....kppppk......",
-"...kppkppk......","...kpk.kpk......","..kppk.kppk.....","..kbbk.kbbk....."]);
-const RIGHT_WALK_B=RIGHT_HEAD.concat(["....kjjjjk......","...kjjjjjk......","...kjjJJjjk.....",
-"...kjjJJjjk.....","...kjjJJjsk.....","...kjjjjjsk.....","....kjjjjk......","....kppppk......",
-"....kppppk......","....kppppk......","....kpppk.......","....kbbbk......."]);
-const SPR_W=16,SPR_H=24;
+   An original chibi character: a big head about two-thirds of its
+   height on a tiny body. Straight, sleek black hair with a side-swept
+   fringe and straight sides, warm light-tan skin, a black shirt and
+   blue jeans. Rows are 16 wide and 20 tall: head 0-12, body 13-16,
+   legs 17-19.                                                        */
+const PAL={".":null,"k":"#141218","h":"#25232c","H":"#4a4a5c","d":"#0e0c12",
+  "s":"#f0c49a","S":"#d4a074","e":"#141218",
+  "j":"#2c2c34","J":"#45454f","p":"#3060ae","b":"#e9e6dc"};
+/* a smooth, rounded crown with a soft shine, shared by front and back */
+const CROWN=["....kkkkkkkk....","..kkhhhhhhhhkk..",".khhHHHhhhhhhhk.",
+".khHHhhhhhhhhhk.","khhhhhhhhhhhhhhk","khhhhhhhhhhhhhhk"];
+/* front: a middle part runs down the crown and the fringe splits into
+   two curtains that frame the face; the sides fall straight */
+const DOWN_HEAD=["....kkkkkkkk....","..kkhhhhhhhhkk..",".khHHhhddhhHHhk.",
+".khHhhhddhhhHhk.","khhhhhhddhhhhhhk","khhhhhhddhhhhhhk",
+"khhhhhdssdhhhhhk","khhhhdssssdhhhhk","khhhdssssssdhhhk",
+"khsssessssessshk","khsssessssessshk",".khsssssssssshk.","..kkSSssssSSkk.."];
+/* back: all hair, with the neck showing under a straight hemline */
+const UP_HEAD=CROWN.concat(["khhhhhhhhhhhhhhk","khhhHhhhhhhhhhhk","khhhhhhhhhhhhhhk",
+"khhhhhhhhhhhhhhk","kdhhhhhhhhhhhhdk",".kdhhhhhhhhhhdk.","..kksddddddskk.."]);
+const BODY_DOWN=["....kjjjjjjk....","...kjjJJJJjjk...","..ksjjJJJJjjsk..","...kjjjjjjjjk..."];
+const BODY_UP=["....kjjjjjjk....","...kjjjjjjjjk...","..ksjjjjjjjjsk..","...kjjjjjjjjk..."];
+const LEGS_STAND=["....kppkkppk....","....kppkkppk....","....kbbkkbbk...."];
+const LEGS_WALK=["....kppkkppk....","....kppk.kbbk...","....kbbk........"];
+const DOWN_UPPER=DOWN_HEAD.concat(BODY_DOWN);
+const UP_UPPER=UP_HEAD.concat(BODY_UP);
+/* side: the fringe reaches forward over the brow, the back is smooth */
+const RIGHT_HEAD=[".....kkkkkk.....","...kkhhhhhhkk...","..khhHHHhhhhhk..",
+".khhHHhhhhhhhhk.",".khhhhhhhhhhhhhk",".khhhhhhhhhhhhhk",".khhhhhhhhhhhhhk",
+".khhhhhhhhhhdssk",".khhhhhhhhdssssk",".khhhhhhhssssesk",".khhhhhhsssssesk",
+"..khhhhhssssssk.","...kkkSSssSkk..."];
+const BODY_RIGHT=[".....kjjjjk.....","....kjjJJjk.....","....kjjJJjsk....",".....kjjjjk....."];
+const RIGHT_STAND=RIGHT_HEAD.concat(BODY_RIGHT,[".....kppppk.....",".....kppppk.....",".....kbbbbk....."]);
+const RIGHT_WALK_A=RIGHT_HEAD.concat(BODY_RIGHT,[".....kppppk.....","....kppkkppk....","...kbbk..kbbk..."]);
+const RIGHT_WALK_B=RIGHT_HEAD.concat(BODY_RIGHT,[".....kppppk.....",".....kppkpk.....",".....kbbkbk....."]);
+const SPR_W=16,SPR_H=20;
 function gridToCanvas(rows,flip){
   const [cv,c]=mk(SPR_W,SPR_H);
   for(let y=0;y<SPR_H;y++){
@@ -1182,6 +1191,8 @@ let SCALE=3, viewW=0, viewH=0, mobile=false, camX=0;
    crosses at the same pace while the camera, which follows the walker's
    height, holds still. ARC_FROM/ARC_RANGE are in world px of road. */
 let SCRY=0, ARC_FROM=0, ARC_RANGE=1, PANEL_Y=0;
+/* bumped on every layout, so a re-layout is never mistaken for a step */
+let layoutGen=0;
 /* Road before the first landmark and after the last, as a fraction of
    what is on screen rather than a fixed distance. */
 const LEAD_F=0.04, TRAIL_F=0.11;
@@ -1230,6 +1241,7 @@ function layout(){
     else s.el.classList.remove("on");
   }
   sheetActive=null;
+  layoutGen++;
 }
 /* Phone browsers resize the viewport as the address bar slides in and
    out. Re-laying out on that would jump the whole page, so a height-only
@@ -1314,6 +1326,7 @@ function draw(dt){
     s.el.style.visibility=far?"hidden":"";
   }
 
+  if(walker.gen!==layoutGen){ walker.prev=null; walker.gen=layoutGen; }
   const moved=walker.arc-(walker.prev===null?walker.arc:walker.prev);
   walker.prev=walker.arc;
   if(Math.abs(moved)>0.12){
@@ -1346,6 +1359,9 @@ function draw(dt){
   }
   const sx=Math.round(pos.x-SPR_W/2-camX);
   const sy2=Math.round(pos.y-camY);
+  /* a soft shadow under the feet grounds the little character */
+  ctx.fillStyle="rgba(30,60,40,.28)";
+  ctx.fillRect(sx+4,sy2+6,8,2);ctx.fillRect(sx+3,sy2+7,10,1);
   ctx.drawImage(SPRITES[walker.dir][walker.frame],sx,sy2-SPR_H+8);
 
   barEl.style.height=((sy/maxScroll)*100).toFixed(2)+"%";
