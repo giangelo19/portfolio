@@ -46,8 +46,11 @@ body{
 #world{position:fixed;inset:0;width:100%;height:100%;z-index:0;
   image-rendering:pixelated;image-rendering:crisp-edges;display:block}
 #content{position:relative;z-index:1}
-.sec{position:absolute;transform:translateY(-50%);width:min(560px,46vw);
-  left:52%;display:flex;flex-direction:column;gap:14px}
+/* Panels are pinned to the screen and moved by the same frame that moves
+   the map, so they share its camera: they hold still with it at a turn.
+   #content only supplies the scroll length. */
+.sec{position:fixed;top:0;transform:translateY(-50%);width:min(560px,46vw);
+  left:52%;display:flex;flex-direction:column;gap:14px;will-change:top}
 
 /* ---- window chrome, same construction as the in-canvas frames ---- */
 .win{
@@ -1042,7 +1045,11 @@ const contentEl=document.getElementById("content");
 const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 let SCALE=3, viewW=0, viewH=0, mobile=false, camX=0;
-let SCRY=0, WALK_FROM=0, WALK_RANGE=1;
+/* Scroll drives distance ALONG the road, not height down the map. On a
+   straight run that is the same thing; at a sideways turn the walker
+   crosses at the same pace while the camera, which follows the walker's
+   height, holds still. ARC_FROM/ARC_RANGE are in world px of road. */
+let SCRY=0, ARC_FROM=0, ARC_RANGE=1, PANEL_Y=0;
 /* Road before the first landmark and after the last, as a fraction of
    what is on screen rather than a fixed distance. */
 const LEAD_F=0.04, TRAIL_F=0.11;
@@ -1066,51 +1073,48 @@ function layout(){
   if(WORLD_H-viewH+SCRY < last+32)
     SCRY=Math.min(first-lead,Math.max(SCRY,last+32-(WORLD_H-viewH)));
   SCRY=Math.max(8,SCRY);
-  WALK_FROM=first-lead;
   const walkTo=Math.min(WORLD_H-viewH+SCRY,last+trail);
-  WALK_RANGE=Math.max(1,walkTo-WALK_FROM);
-  contentEl.style.height=Math.round(WALK_RANGE*SCALE+vh)+"px";
-  /* a panel is centred at exactly the scroll that puts the walker on
-     its landmark */
-  for(const s of SECTIONS)
-    s.el.style.top=Math.round((s.row*TW-WALK_FROM)*SCALE+vh*centre)+"px";
+  ARC_FROM=arcAtWorldY(first-lead);
+  ARC_RANGE=Math.max(1,arcAtWorldY(walkTo)-ARC_FROM);
+  contentEl.style.height=Math.round(ARC_RANGE*SCALE+vh)+"px";
+  /* a panel sits on screen where its landmark's row is, offset so it is
+     centred at PANEL_Y when the walker stands on that landmark */
+  PANEL_Y=Math.round(vh*centre);
+  for(const s of SECTIONS){
+    s.scroll=Math.round((arcAtWorldY(s.row*TW)-ARC_FROM)*SCALE);
+    s.top=null;
+  }
 }
 addEventListener("resize",()=>{try{layout();}catch(e){fatal(e);}});
 layout();
+/* Pinned panels never scroll into view on their own, so tabbing to a
+   link in one walks the route to that panel's landmark. */
+for(const s of SECTIONS)
+  s.el.addEventListener("focusin",()=>{ if(Math.abs(scrollY-s.scroll)>4) scrollTo(0,s.scroll); });
 
-const walker={dir:"down",frame:1,dist:0,step:0,idle:0,arc:null,prev:null,seg:0,lastY:null,bank:0};
+const walker={dir:"down",frame:1,dist:0,step:0,idle:0,arc:null,prev:null};
 let active=null, bannerTimer=0, t=0;
 
 function draw(dt){
-  const maxScroll=Math.max(1,WALK_RANGE*SCALE);
+  const maxScroll=Math.max(1,ARC_RANGE*SCALE);
   const sy=Math.max(0,Math.min(maxScroll,scrollY));
-  /* one pixel of scroll is one pixel of world */
-  const walkY=WALK_FROM+sy/SCALE;
-  const camY=walkY-SCRY;
+  /* one pixel of scroll is one pixel of road, whichever way it runs */
+  walker.arc=ARC_FROM+sy/SCALE;
+  const pos=routeAt(walker.arc);
+  /* the camera follows the walker's height only, so it holds still
+     while the walker crosses a sideways stretch */
+  const walkY=pos.y;
+  const camY=Math.round(walkY-SCRY);
 
-  /* The walker chases the route position for the row the camera is on.
-     At a turn the target jumps ahead by the length of the jog, so the
-     walker eases sideways across the road and then makes it back up. */
-  const target=arcAtWorldY(walkY);
-  const dWalk=walker.lastY===null?0:walkY-walker.lastY;
-  walker.lastY=walkY;
-  if(walker.arc===null||Math.abs(target-walker.arc)>420){
-    walker.arc=target; walker.seg=segOf(target); walker.prev=target; walker.bank=0;
-  } else {
-    let a=walker.arc+dWalk+walker.bank;
-    walker.bank=0;
-    a+=(target-a)*(1-Math.exp(-dt*7.5));
-    const lo=ARC[walker.seg], hi=ARC[walker.seg+1];
-    if(a>hi){
-      if(walker.seg<ROUTE.length-2){ walker.bank=a-hi; walker.seg++; }
-      a=hi;
-    } else if(a<lo){
-      if(walker.seg>0){ walker.bank=a-lo; walker.seg--; }
-      a=lo;
-    }
-    walker.arc=a;
+  /* panels ride the same camera as the map, in whole screen pixels */
+  for(const s of SECTIONS){
+    const top=(s.row*TW-SCRY-camY)*SCALE+PANEL_Y;
+    if(top===s.top) continue;
+    s.top=top;
+    const far=top<-innerHeight||top>innerHeight*2;
+    s.el.style.top=top+"px";
+    s.el.style.visibility=far?"hidden":"";
   }
-  const pos=routeAt(walker.arc,walker.seg);
 
   const moved=walker.arc-(walker.prev===null?walker.arc:walker.prev);
   walker.prev=walker.arc;
