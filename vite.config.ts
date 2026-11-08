@@ -26,5 +26,12 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    // Two pages: the scroll-to-walk map at /, and the classic React site at /classic/.
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        classic: path.resolve(__dirname, 'classic/index.html'),
+      },
+    },
   },
 })

@@ -1,29 +1,1173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gian Angelo Tongzon — Full-Stack Developer</title>
+<meta name="description" content="Portfolio of Gian Angelo Tongzon, a BS Computer Science student at the University of the Philippines Tacloban College and full-stack developer working in Laravel, PHP, React, and PyTorch.">
+<meta name="author" content="Gian Angelo Tongzon">
+<meta name="theme-color" content="#72d09c">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Social previews. Add og:url and og:image once the site has a live domain. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Gian Angelo Tongzon — Full-Stack Developer">
+<meta property="og:description" content="Laravel and PHP web development, React frontends, and a computer vision thesis in PyTorch.">
+<script>
+/* The classic site lives at /classic/. In dev, a path under it that has no
+   file of its own (like /classic/resume on reload) falls back to this page,
+   so send it back to the classic site. Old /route links land here too. */
+(function(){
+  var p=location.pathname;
+  if(/^\/classic(\/|$)/.test(p)) location.replace("/classic/");
+  else if(/^\/route\/?$/.test(p)) history.replaceState(null,"","/");
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Pixelify+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#3b3b46;
+  --ink-soft:#6a6a78;
+  --frame-dark:#3c4668;
+  --frame-band:#8fb0e0;
+  --paper:#f8f8f0;
+  --accent:#c2453a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto}
+body{
+  background:#4e8c47;
+  font-family:"Pixelify Sans",ui-monospace,Menlo,Consolas,monospace;
+  color:var(--ink);
+  overflow-x:hidden;
+}
+/* the world sits behind everything and never scrolls itself */
+#world{position:fixed;inset:0;width:100%;height:100%;z-index:0;
+  image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+#content{position:relative;z-index:1}
+.sec{position:absolute;transform:translateY(-50%);width:min(560px,46vw);
+  left:52%;display:flex;flex-direction:column;gap:14px}
 
-    <title>Gian Angelo Tongzon — Full-Stack Developer</title>
-    <meta
-      name="description"
-      content="Portfolio of Gian Angelo Tongzon, a BS Computer Science student at the University of the Philippines Tacloban College and full-stack developer working in Laravel, PHP, React, and PyTorch."
-    />
-    <meta name="author" content="Gian Angelo Tongzon" />
-    <meta name="theme-color" content="#0b0d14" />
+/* ---- window chrome, same construction as the in-canvas frames ---- */
+.win{
+  background:var(--frame-dark);padding:3px;
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),
+                    calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.18));
+}
+.win>.band{background:var(--frame-band);padding:3px}
+.win>.band>.paper{background:var(--paper);padding:20px 22px;
+  box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 #dcdee8}
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+h1,h2,h3,.label{font-family:"Silkscreen",ui-monospace,monospace;font-weight:700;
+  letter-spacing:.02em;text-transform:uppercase}
+h1{font-size:clamp(20px,3.4vw,30px);line-height:1.3}
+h2{font-size:15px;color:var(--accent);margin-bottom:12px}
+h3{font-size:12px;margin-bottom:4px;line-height:1.5}
+p{font-size:17px;line-height:1.65;color:var(--ink)}
+p+p{margin-top:10px}
+.sub{font-family:"Silkscreen",monospace;font-size:12px;color:var(--ink-soft);
+  letter-spacing:.03em;margin-top:8px}
+.org{font-size:14px;color:var(--ink-soft);font-style:italic}
 
-    <!-- Social previews. Add og:url and og:image once the site has a live domain. -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Gian Angelo Tongzon — Full-Stack Developer" />
-    <meta
-      property="og:description"
-      content="Laravel and PHP web development, React frontends, and a computer vision thesis in PyTorch."
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.chip{font-family:"Silkscreen",monospace;font-size:12px;padding:6px 9px;
+  background:#e8eef8;border:2px solid #b9c8e2;color:#43506e}
+
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{border:2px solid #d8d4c2;background:#fdfdf6;padding:13px 15px}
+.card p{font-size:15px;line-height:1.55;color:var(--ink-soft);margin-top:3px}
+.card ul{margin-top:6px;padding-left:16px;list-style:square}
+.card li{font-size:15px;line-height:1.5;color:var(--ink-soft)}
+.card li+li{margin-top:4px}
+.card li::marker{color:#b9a67e}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.tag{font-family:"Silkscreen",monospace;font-size:12px;padding:3px 6px;
+  background:#f0ece0;border:1px solid #d6d0bc;color:#6b6450}
+.links{display:flex;gap:14px;margin-top:11px;flex-wrap:wrap}
+a{color:#2f6fb0;text-decoration:none;border-bottom:2px solid #b7d2ee;
+  font-size:15px;padding-bottom:1px}
+a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.when{font-family:"Silkscreen",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+
+/* fixed chrome */
+#banner{position:fixed;left:18px;top:16px;z-index:3;pointer-events:none;
+  opacity:0;transition:opacity .25s}
+#banner.on{opacity:1}
+#banner .paper{padding:7px 13px;font-family:"Silkscreen",monospace;font-size:12px}
+#scrollcue{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:3;
+  font-family:"Silkscreen",monospace;font-size:12px;color:#f4f4e8;background:rgba(25,24,39,.78);padding:6px 10px;
+  transition:opacity .4s;pointer-events:none}
+#progress{position:fixed;right:0;top:0;width:5px;height:100%;z-index:3;
+  background:rgba(0,0,0,.14)}
+#progress i{display:block;width:100%;background:var(--accent);height:0}
+#err{position:fixed;inset:0;z-index:9;background:#1b0f14;color:#ff9a9a;
+  font:13px ui-monospace,monospace;padding:24px;white-space:pre-wrap;display:none}
+
+@media (max-width:900px){
+  .sec{width:min(460px,92vw);left:50%;transform:translate(-50%,-50%)}
+  p{font-size:16px}
+  #banner{left:12px;top:12px}
+}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<canvas id="world" aria-hidden="true"></canvas>
+<div id="banner" aria-hidden="true"><div class="win"><div class="band"><div class="paper" id="bannerText">START</div></div></div></div>
+<div id="progress" aria-hidden="true"><i></i></div>
+<div id="scrollcue" aria-hidden="true">▼ SCROLL TO WALK ▼</div>
+<div id="err"></div>
+
+<!--
+  Content comes from public/resume.pdf. data-row is the map row each panel's
+  landmark sits on; leave about 19 rows between panels, more for tall ones.
+-->
+<main id="content">
+  <section class="sec" data-name="START" data-row="21">
+    <div class="win"><div class="band"><div class="paper">
+      <h1>Gian Angelo Tongzon</h1>
+      <p>Full-stack developer and computer vision researcher. Fourth-year BS Computer Science student at UP Tacloban College, Hilongos, Leyte.</p>
+      <div class="sub">Scroll down to walk the route</div>
+    </div></div></div>
+  </section>
+
+  <section class="sec" data-name="ABOUT ME" data-row="40">
+    <div class="win"><div class="band"><div class="paper">
+      <h2>About Me</h2>
+      <p>I'm a fourth-year BS Computer Science student and DOST-SEI scholar at the University of the Philippines Tacloban College. I'm currently building MantaNet, a multi-task CNN framework for deep-sea object detection and semantic segmentation, as my undergraduate thesis.</p>
+      <p>I've done full-stack work on production codebases, including backend work on a logistics ERP at MYT SoftDev Solutions and a React portal for the Municipality of Hilongos. I'm looking for a software engineering role in backend or applied ML work on real systems.</p>
+    </div></div></div>
+  </section>
+
+  <section class="sec" data-name="EXPERIENCE" data-row="59">
+    <div class="win"><div class="band"><div class="paper">
+      <h2>Experience</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="row"><h3>Software Engineer Intern</h3><span class="when">2026</span></div>
+          <div class="org">MYT SoftDev Solutions</div>
+          <ul>
+            <li>Developed backend features for a full-stack logistics ERP (CodeIgniter 4 + React) serving a trucking business, including contract route management modules.</li>
+            <li>Designed and documented the database layer: an ERD and a full data dictionary covering 23 tables.</li>
+            <li>Managed schema migrations and database export/import workflows across local and shared hosting.</li>
+            <li>Followed conventional commits and Git-based team workflows on a production codebase.</li>
+          </ul>
+          <div class="tags"><span class="tag">CodeIgniter 4</span><span class="tag">React</span><span class="tag">MySQL</span><span class="tag">Git</span></div>
+        </div>
+      </div>
+    </div></div></div>
+  </section>
+
+  <section class="sec" data-name="PROJECTS" data-row="82">
+    <div class="win"><div class="band"><div class="paper">
+      <h2>Projects</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="row"><h3>Hilongos Service Management System</h3><span class="when">2026</span></div>
+          <div class="org">Frontend Developer · Municipality of Hilongos, Leyte</div>
+          <p>React web portal for the municipality's service management system, covering resident booking and the internal staff workflow for 12 municipal offices. Designed a no-account, multi-step booking flow with reference-code tracking, the full service request lifecycle UI, and a typo-tolerant fuzzy search engine.</p>
+          <div class="tags"><span class="tag">React 19</span><span class="tag">Vite</span><span class="tag">Tailwind CSS</span><span class="tag">React Router</span><span class="tag">TanStack Query</span></div>
+        </div>
+        <div class="card">
+          <div class="row"><h3>General Laboratory Item Management System</h3><span class="when">2025</span></div>
+          <div class="org">Frontend Developer · UP Tacloban College</div>
+          <p>Java desktop application for managing laboratory equipment and materials. Streamlined inventory tracking across lab departments, with a database architecture for equipment categorization and availability monitoring.</p>
+          <div class="tags"><span class="tag">Java</span><span class="tag">Desktop App</span><span class="tag">Database Design</span></div>
+        </div>
+        <div class="card">
+          <div class="row"><h3>CoachTzy</h3><span class="when">2025</span></div>
+          <div class="org">Full-Stack Developer · UP Tacloban College</div>
+          <p>Web app for competitive team management with draft simulation and performance analytics. Secure authentication, a responsive multi-page dashboard, and a database for players, teams, and match data.</p>
+          <div class="tags"><span class="tag">Supabase</span><span class="tag">JavaScript</span><span class="tag">Full-Stack</span></div>
+        </div>
+        <div class="card">
+          <div class="row"><h3>Snek n Laderz</h3><span class="when">2024</span></div>
+          <div class="org">Full-Stack Developer · UP Tacloban College</div>
+          <p>Java Swing desktop board game with a multi-player framework, animated movement, custom board rendering, dice mechanics, and win detection.</p>
+          <div class="tags"><span class="tag">Java Swing</span><span class="tag">OOP</span><span class="tag">Multithreading</span></div>
+        </div>
+      </div>
+      <div class="links"><a href="https://github.com/giangelo19" target="_blank" rel="noopener noreferrer">More on GitHub</a></div>
+    </div></div></div>
+  </section>
+
+  <section class="sec" data-name="THESIS" data-row="106">
+    <div class="win"><div class="band"><div class="paper">
+      <h2>Thesis</h2>
+      <div class="card">
+        <div class="row"><h3>MantaNet</h3><span class="when">Ongoing</span></div>
+        <div class="org">A Multicolor Space CNN-Based Multi-Task Framework for Deep-Sea Detection and Segmentation</div>
+        <p>A CNN-based multi-task framework that jointly performs object detection and semantic segmentation on deep-sea imagery, using a multicolor space input representation. Built a shared backbone with dual task-specific heads, curated pixel-level segmentation masks for the dataset, and showed measurable gains from multi-task learning over single-task baselines.</p>
+        <div class="tags"><span class="tag">PyTorch</span><span class="tag">Computer Vision</span><span class="tag">Multi-Task Learning</span><span class="tag">Deep Learning</span></div>
+      </div>
+    </div></div></div>
+  </section>
+
+  <section class="sec" data-name="EDUCATION" data-row="126">
+    <div class="win"><div class="band"><div class="paper">
+      <h2>Education</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="row"><h3>BS Computer Science</h3><span class="when">2023 - Present</span></div>
+          <div class="org">University of the Philippines Tacloban College · DOST-SEI Scholar</div>
+          <p>Data Structures and Algorithms, Machine Learning, Artificial Intelligence, Computer Vision, Software Engineering, Linear Algebra, Probability and Statistics, Research in Computer Science.</p>
+        </div>
+        <div class="card">
+          <div class="row"><h3>High School</h3><span class="when">2017 - 2023</span></div>
+          <div class="org">Philippine Science High School</div>
+          <p>Computer Science, Calculus, Statistics, Physics, Research I-III, Capstone Research Project.</p>
+        </div>
+        <div class="card">
+          <div class="row"><h3>Career Service Examination</h3><span class="when">Mar 2026</span></div>
+          <div class="org">Pen and Paper Test, Professional Level</div>
+        </div>
+      </div>
+    </div></div></div>
+  </section>
+
+  <section class="sec" data-name="TECH STACK" data-row="146">
+    <div class="win"><div class="band"><div class="paper">
+      <h2>Tech Stack</h2>
+      <h3>Backend</h3>
+      <div class="chips"><span class="chip">PHP</span><span class="chip">Laravel</span><span class="chip">CodeIgniter 4</span><span class="chip">MySQL</span><span class="chip">Supabase</span><span class="chip">REST APIs</span></div>
+      <h3 style="margin-top:14px">Frontend</h3>
+      <div class="chips"><span class="chip">JavaScript</span><span class="chip">React</span><span class="chip">Vite</span><span class="chip">Tailwind CSS</span><span class="chip">React Router</span><span class="chip">TanStack Query</span></div>
+      <h3 style="margin-top:14px">ML and desktop</h3>
+      <div class="chips"><span class="chip">Python</span><span class="chip">PyTorch</span><span class="chip">Java</span><span class="chip">Java Swing</span></div>
+      <h3 style="margin-top:14px">Tooling</h3>
+      <div class="chips"><span class="chip">Git</span><span class="chip">GitHub</span><span class="chip">VS Code</span><span class="chip">XAMPP</span><span class="chip">Postman</span></div>
+    </div></div></div>
+  </section>
+
+  <section class="sec" data-name="CONTACT" data-row="165">
+    <div class="win"><div class="band"><div class="paper">
+      <h2>Contact</h2>
+      <p>I'm open to software engineering roles in backend or applied ML. The quickest way to reach me is email.</p>
+      <div class="links">
+        <a href="mailto:tongzongian@gmail.com">Email</a>
+        <a href="https://github.com/giangelo19" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://linkedin.com/in/gian-angelo-tongzon-7b18562b2" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
+        <a href="/classic/">Plain version</a>
+      </div>
+      <div class="sub">tongzongian@gmail.com</div>
+    </div></div></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+/* ==================================================================
+   Scroll-driven overworld route.
+
+   The page scrolls normally. The world is a fixed canvas behind the
+   content, panned 1:1 with the page in SCREEN pixels, so the walker
+   stays pinned while the route slides past.
+
+   The art is original and drawn here in code, in the style of a
+   16px handheld-era overworld: mint grass, round trees, wide sandy
+   paths, ledges, tall grass, a lake with a bridge, and a small town
+   at the start. There are no image assets.
+
+   The map's length follows the sections: add a <section class="sec">
+   with a data-row and the road, landmark and scenery extend for it.
+   ================================================================== */
+
+const SECTIONS=[...document.querySelectorAll(".sec")].map(el=>({
+  el, name:el.dataset.name, row:+el.dataset.row
+}));
+const FIRST_ROW=SECTIONS[0].row, LAST_ROW=SECTIONS[SECTIONS.length-1].row;
+
+const TW=16, MAPW=44, MAPH=LAST_ROW+26;
+const WORLD_W=MAPW*TW, WORLD_H=MAPH*TW;
+const PATH_X=14;                      // the road's resting column
+const ROAD_END=LAST_ROW+12;
+/* Road column per section, relative to PATH_X. Two equal neighbours
+   mean a straight run between them (the lake sits on one). */
+const OFFS=[0,5,-3,0,0,4,-2,3];
+
+/* ---------------------------- plumbing ----------------------------- */
+function fatal(e){
+  const el=document.getElementById("err");
+  el.style.display="block";
+  el.textContent="Something broke while building the page.\n\n"+((e&&(e.stack||e.message))||e);
+}
+addEventListener("error",ev=>fatal(ev.error||ev.message));
+
+function hash(x,y){let h=(x*374761393+y*668265263)^0x5bf03635;h=(h^(h>>>13))*1274126177;
+  return ((h^(h>>>16))>>>0)/4294967296;}
+function rng(seed){return ()=>{seed=(seed+0x6d2b79f5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);
+  t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296;};}
+function mk(w,h){const c=document.createElement("canvas");c.width=w;c.height=h;
+  const x=c.getContext("2d");
+  if(!x) throw new Error("no 2D context at "+w+"x"+h);
+  x.imageSmoothingEnabled=false;return [c,x];}
+/* Detached canvases are what a browser discards first under memory
+   pressure, and a discarded one goes blank instead of raising. Release
+   every intermediate as soon as it is composited. */
+function free(){for(const c of arguments) if(c){c.width=0;c.height=0;}}
+function pcircle(c,cx,cy,r){for(let y=Math.floor(cy-r);y<=Math.ceil(cy+r);y++){
+  const dy=y+0.5-cy,t=r*r-dy*dy;if(t<0)continue;const w=Math.sqrt(t);
+  c.fillRect(Math.round(cx-w),y,Math.max(1,Math.round(2*w)),1);}}
+function erode(m){const [cv,c]=mk(m.width,m.height);c.drawImage(m,0,0);
+  c.globalCompositeOperation="destination-in";
+  c.drawImage(m,1,0);c.drawImage(m,-1,0);c.drawImage(m,0,1);c.drawImage(m,0,-1);return cv;}
+function dilate(m,k){const [cv,c]=mk(m.width,m.height);
+  for(let dy=-k;dy<=k;dy++) for(let dx=-k;dx<=k;dx++)
+    if(dx*dx+dy*dy<=k*k+1) c.drawImage(m,dx,dy);
+  return cv;}
+function band(a,b,col){const [cv,c]=mk(a.width,a.height);c.drawImage(a,0,0);
+  c.globalCompositeOperation="destination-out";c.drawImage(b,0,0);
+  c.globalCompositeOperation="source-in";c.fillStyle=col;c.fillRect(0,0,cv.width,cv.height);return cv;}
+function clipTo(l,m){const c=l.getContext("2d");c.globalCompositeOperation="destination-in";
+  c.drawImage(m,0,0);c.globalCompositeOperation="source-over";return l;}
+function quantize(cv){const c=cv.getContext("2d");          // 5-bit colour grid
+  const d=c.getImageData(0,0,cv.width,cv.height),a=d.data;
+  for(let i=0;i<a.length;i+=4){if(a[i+3]===0)continue;
+    a[i]=(a[i]&0xf8)|(a[i]>>5);a[i+1]=(a[i+1]&0xf8)|(a[i+1]>>5);a[i+2]=(a[i+2]&0xf8)|(a[i+2]>>5);}
+  c.putImageData(d,0,0);return cv;}
+const rect=(c,col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x,y,w,h);};
+
+/* ------------------------------ palette ---------------------------- */
+const COL={
+  grass:"#72d09c", grassLight:"#94deb4", grassTuft:"#4fae7c", grassEdge:"#58b886",
+  sand:"#e6cb8c", sandLight:"#f3deaa", sandDark:"#d2b072", sandRim:"#b8955a",
+  tall:"#3f9c59", tallBlade:"#58b86c", tallTip:"#86d690", tallDark:"#2b7843",
+  leafOut:"#1c4a33", leafDark:"#2b6d45", leaf:"#3b8a51", leafLight:"#57a95c", leafHi:"#88ca74",
+  trunk:"#6e4c2f", trunkDark:"#4b321e", forestFill:"#275f40", treeShadow:"#52af80",
+  water:"#4164c6", waterLight:"#6888e0", waterHi:"#b4c8f6", waterDeep:"#3454aa", waterEdge:"#283c84",
+  shore:"#b58e5a", shoreDark:"#7a5934",
+  plank:"#c99a62", plankDark:"#8a6238", plankLight:"#e2b983", rail:"#5a3e26",
+  ledgeLip:"#dcab74", ledge:"#a46e44", ledgeDark:"#6e4528",
+  rock:"#8e939a", rockLight:"#bcc1c7", rockDark:"#5c6068",
+  iron:"#2f3340", lampGlass:"#fff1b0"
+};
+
+/* ------------------------------ ground ----------------------------- */
+function texGrass(c,px,py,x,y){
+  rect(c,COL.grass,px,py,TW,TW);
+  const h=hash(x,y);
+  if(h<.28){
+    const a=2+((h*400)|0)%11, b=3+((h*977)|0)%9;
+    rect(c,COL.grassTuft,px+a,py+b,1,2);rect(c,COL.grassTuft,px+a+2,py+b,1,2);
+    rect(c,COL.grassTuft,px+a+1,py+b+1,1,2);
+  } else if(h>.9){
+    const a=2+((h*530)|0)%11, b=2+((h*710)|0)%11;
+    rect(c,COL.grassLight,px+a,py+b,1,1);rect(c,COL.grassLight,px+a+2,py+b+1,1,1);
+    rect(c,COL.grassLight,px+a+1,py+b+2,1,1);
+  }
+}
+function texSand(c,px,py,x,y){
+  rect(c,COL.sand,px,py,TW,TW);
+  const h=hash(x*3+1,y*7+2);
+  if(h<.35){
+    const a=3+((h*910)|0)%9, b=3+((h*570)|0)%9;
+    rect(c,COL.sandDark,px+a,py+b,3,1);rect(c,COL.sandDark,px+a-1,py+b-1,1,1);
+    rect(c,COL.sandLight,px+a,py+b+1,3,1);
+  }
+  if(h>.78) rect(c,COL.sandLight,px+((h*130)|0)%13,py+((h*290)|0)%14,2,1);
+}
+function texTall(c,px,py){
+  rect(c,COL.tall,px,py,TW,TW);
+  for(const oy of [0,8]) for(const ox of [0,4,8,12]){
+    const X=px+ox, Y=py+oy;
+    rect(c,COL.tallDark,X,Y+6,4,2);
+    rect(c,COL.tallBlade,X,Y+2,1,5);rect(c,COL.tallBlade,X+1,Y,1,7);rect(c,COL.tallBlade,X+3,Y+1,1,6);
+    rect(c,COL.tallTip,X+1,Y,1,2);rect(c,COL.tallTip,X+3,Y+1,1,1);
+    rect(c,COL.tallDark,X+2,Y+3,1,4);
+  }
+}
+function texWater(c,px,py,x,y){
+  rect(c,COL.water,px,py,TW,TW);
+  const o=((x+y)%2)*8;
+  rect(c,COL.waterLight,px+((o+2)%16),py+3,5,1);rect(c,COL.waterLight,px+((o+10)%16),py+11,5,1);
+  rect(c,COL.waterDeep,px+((o+5)%16),py+7,4,1);rect(c,COL.waterDeep,px+((o+13)%16),py+15,3,1);
+}
+function waterShimmer(c,px,py,x,y,f){
+  const p=(x*5+y*3+f*4);
+  rect(c,COL.waterHi,px+(p%13),py+5,3,1);
+  rect(c,COL.waterLight,px+((p+7)%13),py+12,4,1);
+}
+function paintBridge(c,px,py,L,R){
+  rect(c,COL.plank,px,py,TW,TW);
+  for(let i=0;i<4;i++){rect(c,COL.plankLight,px,py+i*4,TW,1);rect(c,COL.plankDark,px,py+i*4+3,TW,1);}
+  if(!L){rect(c,COL.rail,px,py,3,TW);rect(c,COL.plankDark,px+1,py,1,TW);
+    for(let i=0;i<2;i++) rect(c,"#3c2a18",px,py+i*8+2,3,3);}
+  if(!R){rect(c,COL.rail,px+13,py,3,TW);rect(c,COL.plankDark,px+14,py,1,TW);
+    for(let i=0;i<2;i++) rect(c,"#3c2a18",px+13,py+i*8+2,3,3);}
+}
+function paintLedge(c,px,py,L,R){
+  const x0=px+(L?0:2), w=TW-(L?0:2)-(R?0:2);
+  rect(c,COL.grassEdge,x0,py+14,w,2);
+  rect(c,COL.ledgeDark,x0,py+8,w,6);
+  rect(c,COL.ledge,x0,py+9,w,3);
+  rect(c,COL.ledgeLip,x0,py+8,w,1);
+  rect(c,COL.ledgeDark,px+4,py+10,2,1);rect(c,COL.ledgeDark,px+11,py+11,2,1);
+}
+function paintFlowers(c,px,py,x,y){
+  const h=hash(x*3+1,y*5+7);
+  const sets=[["#f4a0b8","#ffffff"],["#ffffff","#f6d860"],["#f6a060","#fff2c0"]];
+  const p=sets[(h*3)|0];
+  const spots=[[3,3],[9,9],[11,2],[3,10]].slice(0,2+(((h*10)|0)%3));
+  for(const [fx,fy] of spots){
+    rect(c,COL.grassTuft,px+fx+1,py+fy+3,1,2);
+    rect(c,p[0],px+fx,py+fy+1,3,1);rect(c,p[0],px+fx+1,py+fy,1,3);
+    rect(c,p[1],px+fx+1,py+fy+1,1,1);
+  }
+}
+function paintShrub(c,px,py){
+  rect(c,COL.treeShadow,px+3,py+12,11,3);
+  rect(c,COL.leafOut,px+4,py+6,9,7);rect(c,COL.leafOut,px+6,py+3,5,4);
+  rect(c,COL.leafDark,px+5,py+7,7,5);rect(c,COL.leafDark,px+7,py+4,3,4);
+  rect(c,COL.leaf,px+5,py+7,3,3);rect(c,COL.leaf,px+9,py+6,2,3);rect(c,COL.leaf,px+7,py+4,2,2);
+  rect(c,COL.leafHi,px+6,py+7,1,1);rect(c,COL.leafHi,px+8,py+4,1,1);
+  rect(c,COL.leafOut,px+3,py+9,1,3);rect(c,COL.leafOut,px+13,py+9,1,3);
+}
+
+/* ----------------------------- objects ----------------------------- */
+function makeWallTree(v){                       // 16x24, rows overlap
+  const [cv,c]=mk(16,24);
+  rect(c,COL.trunkDark,6,17,4,6);
+  c.fillStyle=COL.leafOut;pcircle(c,8,10,8);pcircle(c,8,6+v,6);
+  c.fillStyle=COL.leafDark;pcircle(c,8,10,7);
+  c.fillStyle=COL.leaf;pcircle(c,7,8,6);pcircle(c,8+v,5,4.5);
+  c.fillStyle=COL.leafLight;pcircle(c,6,6,3.2);
+  rect(c,COL.leafHi,4,4,2,1);rect(c,COL.leafHi,5,3,2,1);
+  rect(c,COL.leafDark,3,13,2,1);rect(c,COL.leafDark,10,14,3,1);rect(c,COL.leafDark,7,12,2,1);
+  return quantize(cv);
+}
+function makeBigTree(v){                        // 32x40 on a 2x2 footprint
+  const [cv,c]=mk(32,40);
+  rect(c,COL.treeShadow,6,34,20,4);rect(c,COL.treeShadow,3,35,26,2);
+  rect(c,COL.trunkDark,13,24,7,12);rect(c,COL.trunk,14,24,4,11);
+  c.fillStyle=COL.leafOut;pcircle(c,16,15,14);pcircle(c,9,19,9);pcircle(c,23,19,9);
+  c.fillStyle=COL.leafDark;pcircle(c,16,15,13);pcircle(c,9,19,8);pcircle(c,23,19,8);
+  c.fillStyle=COL.leaf;pcircle(c,15,12,11);pcircle(c,9,16,6);pcircle(c,22,15,7);
+  c.fillStyle=COL.leafLight;pcircle(c,12+v,9,6);pcircle(c,20,10,4);pcircle(c,8,15,3);
+  c.fillStyle=COL.leafHi;pcircle(c,11+v,7,2.5);rect(c,COL.leafHi,19,8,3,1);rect(c,COL.leafHi,7,14,2,1);
+  rect(c,COL.leafDark,14,19,3,1);rect(c,COL.leafDark,20,22,4,1);rect(c,COL.leafDark,8,23,3,1);
+  rect(c,COL.leafDark,17,14,2,1);
+  return quantize(cv);
+}
+const WALL_TREES=[makeWallTree(0),makeWallTree(1)];
+const BIG_TREES=[makeBigTree(0),makeBigTree(1)];
+
+function paintRock(c,px,py,wet){
+  if(wet){c.fillStyle=COL.waterLight;pcircle(c,px+8,py+11,7);}
+  else rect(c,COL.treeShadow,px+3,py+13,11,2);
+  c.fillStyle=COL.rockDark;pcircle(c,px+8,py+9,6);
+  c.fillStyle=COL.rock;pcircle(c,px+8,py+8,5);
+  c.fillStyle=COL.rockLight;pcircle(c,px+6,py+6,2.5);
+  rect(c,COL.rockDark,px+9,py+10,3,1);
+}
+function paintPebble(c,px,py){
+  rect(c,COL.treeShadow,px+3,py+12,10,2);
+  c.fillStyle=COL.rockDark;pcircle(c,px+8,py+9,5);
+  c.fillStyle=COL.rock;pcircle(c,px+8,py+8,4);
+  c.fillStyle=COL.rockLight;rect(c,COL.rockLight,px+6,py+6,2,2);
+}
+function paintSign(c,px,py){
+  rect(c,COL.treeShadow,px+4,py+13,8,2);
+  rect(c,"#3f2a14",px+6,py+8,4,7);rect(c,"#6b4723",px+7,py+8,2,7);
+  rect(c,"#2f1e0d",px+1,py+1,14,9);rect(c,"#b98a4e",px+2,py+2,12,7);
+  rect(c,"#d8ab6c",px+2,py+2,12,2);
+  rect(c,"#6d4a24",px+3,py+5,10,1);rect(c,"#6d4a24",px+3,py+7,7,1);
+}
+function paintLamp(c,px,py){                    // 32px tall, base on this tile
+  const y=py-16;
+  rect(c,COL.treeShadow,px+4,py+13,9,2);
+  rect(c,COL.iron,px+7,y+9,2,21);rect(c,COL.iron,px+5,py+11,6,3);
+  rect(c,COL.iron,px+4,y+2,8,8);
+  rect(c,COL.lampGlass,px+5,y+3,6,5);rect(c,"#ffffff",px+5,y+3,2,2);
+  rect(c,COL.iron,px+3,y+1,10,2);rect(c,COL.iron,px+7,y,2,1);
+}
+function paintBench(c,px,py){
+  rect(c,"rgba(0,0,0,0)",px,py,1,1);
+  rect(c,COL.sandDark,px+1,py+13,15,2);
+  rect(c,"#5a3e26",px+1,py+4,14,9);
+  rect(c,"#c08a52",px+2,py+5,12,2);rect(c,"#c08a52",px+2,py+8,12,2);
+  rect(c,"#e0b07a",px+2,py+5,12,1);
+  rect(c,"#3a2a1a",px+2,py+11,2,3);rect(c,"#3a2a1a",px+12,py+11,2,3);
+}
+function paintFountain(c,px,py){                // 2x2 tiles
+  c.fillStyle=COL.sandDark;pcircle(c,px+16,py+18,15);
+  c.fillStyle="#666b76";pcircle(c,px+16,py+16,14);
+  c.fillStyle="#c9ced6";pcircle(c,px+16,py+16,13);
+  c.fillStyle="#e8ebf0";pcircle(c,px+16,py+15,12);
+  c.fillStyle="#4f7fd8";pcircle(c,px+16,py+16,10);
+  c.fillStyle="#76a0ea";pcircle(c,px+13,py+14,5);
+  rect(c,"#666b76",px+14,py+8,4,10);rect(c,"#c9ced6",px+15,py+8,2,9);
+  rect(c,"#ffffff",px+15,py+3,2,5);rect(c,"#dce8ff",px+12,py+5,2,3);rect(c,"#dce8ff",px+18,py+5,2,3);
+  rect(c,"#dce8ff",px+9,py+18,3,1);rect(c,"#dce8ff",px+20,py+20,3,1);
+}
+function paintMailbox(c,px,py){
+  rect(c,COL.treeShadow,px+4,py+13,8,2);
+  rect(c,COL.trunkDark,px+7,py+7,2,7);
+  rect(c,"#4a2a52",px+3,py,10,8);rect(c,"#8a5ab0",px+4,py+1,8,6);
+  rect(c,"#f6f6f2",px+5,py+3,6,1);rect(c,"#f2c84b",px+12,py+2,2,3);
+}
+
+/* ----------------------------- buildings --------------------------- */
+const ROOFS={
+  green:{base:"#3f8f55",lo:"#27603a",hi:"#64bd7c",rim:"#92dba6",eave:"#1d4a2c"},
+  brown:{base:"#9a5f3a",lo:"#6a3f24",hi:"#c4855a",rim:"#e0a87c",eave:"#4e2e1a"},
+  slate:{base:"#6f7f93",lo:"#4a576a",hi:"#97a8bc",rim:"#c2d0e0",eave:"#36404e"},
+  teal:{base:"#2a9d8f",lo:"#1b6b62",hi:"#55c4b6",rim:"#8fe0d4",eave:"#134c45"},
+  navy:{base:"#3d4f8a",lo:"#27345e",hi:"#6276b4",rim:"#97a8dc",eave:"#1e2846"},
+  orange:{base:"#d9822b",lo:"#9a5717",hi:"#f2a95a",rim:"#ffd19a",eave:"#6e3d0f"},
+  purple:{base:"#7a5aa8",lo:"#4e3a70",hi:"#a384d0",rim:"#c6aeea",eave:"#3b2b55"},
+  yellow:{base:"#d9a92b",lo:"#9a7417",hi:"#f2cc5a",rim:"#ffe59a",eave:"#6e520f"}
+};
+const WALLS={
+  cream:{base:"#efe0b6",hi:"#f8efd2",line:"#d6c290",trim:"#6e5a38"},
+  white:{base:"#eceef2",hi:"#ffffff",line:"#cdd3db",trim:"#555d6b"},
+  pale:{base:"#dbe7f0",hi:"#f0f6fa",line:"#b8c8d6",trim:"#4a5668"},
+  wood:{base:"#c79a64",hi:"#dcb282",line:"#a47a48",trim:"#5a3e26"}
+};
+/* small plaque icons, one per kind of building */
+const ICONS={
+  star:{col:"#d99a18",rows:["...X...","..XXX..","XXXXXXX",".XXXXX.","..XXX..",".XX.XX.","X.....X"]},
+  heart:{col:"#d9485a",rows:[".XX.XX.","XXXXXXX","XXXXXXX",".XXXXX.","..XXX..","...X..."]},
+  case:{col:"#8a5a2c",rows:["...XXX...","...X.X...","XXXXXXXXX","XXXXXXXXX","XXXX.XXXX","XXXXXXXXX","XXXXXXXXX"]},
+  flask:{col:"#1f8f82",rows:["..XXX..","..X.X..","..X.X..",".X...X.","X.XXX.X","XXXXXXX","XXXXXXX"]},
+  book:{col:"#3f6cab",rows:["XXXX.XXXX","X.XX.XX.X","XXXX.XXXX","X.XX.XX.X","XXXX.XXXX","XXXXXXXXX"]},
+  gear:{col:"#5d6370",rows:["X.XXX.X",".XXXXX.","XXX.XXX","XX...XX","XXX.XXX",".XXXXX.","X.XXX.X"]},
+  mail:{col:"#7a4aa0",rows:["XXXXXXXXX","XX.....XX","X.X...X.X","X..X.X..X","X...X...X","X.......X","XXXXXXXXX"]}
+};
+const OVER=4, BTOP=10;
+function buildBuilding(b){
+  const W=b.w*TW,H=b.h*TW,CW=W+OVER*2,TOP=BTOP;
+  const [cv,c]=mk(CW,H+TOP);
+  const R=ROOFS[b.roof], WL=WALLS[b.wall||"cream"], rh=(b.h-2)*TW+TOP+2;
+  if(b.chimney){
+    const cx=OVER+W-22;
+    rect(c,"#4a3a36",cx-1,TOP-4,11,14);rect(c,"#8a5c4e",cx,TOP-3,9,13);
+    rect(c,"#a87664",cx,TOP-3,9,3);rect(c,"#3a2e2a",cx-2,TOP-6,13,4);
+  }
+  if(b.antenna){
+    const ax=OVER+W-14;
+    rect(c,COL.iron,ax,1,2,TOP+4);rect(c,"#e8604a",ax-1,0,4,3);
+    rect(c,COL.iron,ax-4,5,10,1);
+  }
+  rect(c,R.base,0,TOP-2,CW,rh);
+  c.fillStyle=R.hi;for(let y=TOP+1;y<TOP-2+rh-6;y+=5)c.fillRect(1,y,CW-2,1);
+  c.fillStyle=R.lo;
+  for(let y=TOP+2,r=0;y<TOP-2+rh-6;y+=5,r++)
+    for(let x=(r%2)*5;x<CW-1;x+=10) c.fillRect(x+1,y,1,3);
+  rect(c,R.rim,2,TOP-2,CW-4,2);
+  rect(c,R.lo,0,TOP-2,1,rh);rect(c,R.lo,CW-1,TOP-2,1,rh);
+  rect(c,R.eave,0,TOP-2+rh-6,CW,6);rect(c,R.lo,0,TOP-2+rh-6,CW,1);
+  rect(c,"#241d26",0,TOP-3,CW,1);rect(c,"#241d26",0,TOP-2+rh,CW,1);
+  const wy=TOP-2+rh,wh=H+TOP-wy;
+  rect(c,WL.base,OVER,wy,W,wh);rect(c,WL.hi,OVER,wy,W,2);
+  c.fillStyle=WL.line;for(let y=wy+5;y<H+TOP-2;y+=4)c.fillRect(OVER,y,W,1);
+  rect(c,WL.trim,OVER-1,wy,1,wh);rect(c,WL.trim,OVER+W,wy,1,wh);rect(c,WL.trim,OVER-1,H+TOP-1,W+2,1);
+  rect(c,"rgba(40,30,20,.22)",OVER,wy,W,3);
+  /* door with a small awning in the roof colour */
+  const dx=OVER+b.door*TW;
+  rect(c,"#3c2410",dx+2,wy+5,12,wh-5);rect(c,"#7d4e26",dx+3,wy+6,10,wh-6);
+  rect(c,"#96603a",dx+3,wy+6,10,2);rect(c,"#5e3a1c",dx+8,wy+6,1,wh-6);
+  rect(c,"#f0cf72",dx+10,wy+14,2,2);
+  rect(c,R.base,dx,wy+1,16,3);rect(c,R.lo,dx,wy+4,16,1);
+  rect(c,"#b9a67e",dx+1,H+TOP-3,14,3);
+  for(let i=0;i<b.w;i++){
+    if(i===b.door||i%2!==(b.door+1)%2) continue;
+    const wx=OVER+i*TW+4;
+    rect(c,"#46606e",wx-1,wy+6,10,9);rect(c,"#8fd0ea",wx,wy+7,8,7);rect(c,"#cdeefb",wx,wy+7,4,3);
+    rect(c,"#46606e",wx+4,wy+7,1,7);rect(c,"#46606e",wx,wy+10,8,1);
+    rect(c,"#d8c69a",wx-2,wy+15,12,2);
+  }
+  if(b.dome){                                   // observatory dome
+    const cx=(CW>>1)-11,cy=TOP+4;
+    rect(c,"#5a6169",cx-1,cy+6,24,12);rect(c,"#b2b9c1",cx,cy+7,22,10);rect(c,"#8a9199",cx,cy+13,22,4);
+    c.fillStyle="#5a6169";pcircle(c,cx+11,cy+8,11);
+    c.fillStyle="#c8ced5";pcircle(c,cx+11,cy+8,10);
+    c.fillStyle="#eaeef2";pcircle(c,cx+7,cy+5,4);
+    rect(c,"#3a3f4a",cx+10,cy-2,3,10);rect(c,"#3a3f4a",cx+12,cy-4,6,3);
+  }
+  if(b.icon){
+    const ic=ICONS[b.icon], pw=17, ph=11;
+    const px=(CW>>1)-(pw>>1), py=TOP-2+rh-6-ph-2;
+    rect(c,"#241d26",px-1,py-1,pw+2,ph+2);rect(c,"#f6f6f2",px,py,pw,ph);
+    const iw=ic.rows[0].length, ox=px+((pw-iw)>>1), oy=py+((ph-ic.rows.length)>>1);
+    c.fillStyle=ic.col;
+    ic.rows.forEach((row,y)=>{for(let x=0;x<row.length;x++) if(row[x]==="X") c.fillRect(ox+x,oy+y,1,1);});
+  }
+  return quantize(cv);
+}
+
+/* ---------------------------- the walker ----------------------------
+   An original character: dark messy hair, teal hoodie, grey jeans.
+   Rows are 16 wide; the body and legs are shared between directions. */
+const PAL={".":null,"k":"#191827","h":"#2b2436","H":"#4b4060","s":"#f4caa0","S":"#d2a070",
+  "j":"#2a9d8f","J":"#5fd0c0","p":"#4a4f63","b":"#e9e6dc"};
+const BODY_FRONT=["....kjjjjjjk....","...kjjjjjjjjk...","..kjjjJJJJjjjk..","..kjjjJJJJjjjk..",
+"..kjsjJJJJjsjk..","..kjsjjjjjjsjk..","...kjjjjjjjjk..."];
+const DOWN_UPPER=["................",".....kkkkkk.....","...kkhhhhhhkk...","..khhHHHhhhhhk..",
+".khhHhhhhhhhhhk.",".khhhhhhhhhhhhk.",".khshhhshhhhshk.",".khssssssssssshk",
+".kssksssssskssk.","..kssssssssssk..","...kssSSSSssk...","....kkkkkkkk...."].concat(BODY_FRONT);
+const UP_UPPER=["................",".....kkkkkk.....","...kkhhhhhhkk...","..khhHHHhhhhhk..",
+".khhHhhhhhhhhhk.",".khhhhhhhhhhhhk.",".khhhhhhhhhhhhk.",".khhhhHHhhhhhhk.",
+".khhhhhhhhhhhhk.","..khhhhhhhhhhk..","...khhhhhhhhk...","....kkkkkkkk...."].concat(BODY_FRONT);
+const LEGS_STAND=["....kppppppk....","....kppkkppk....","....kppkkppk....","....kppkkppk....","....kbbkkbbk...."];
+const LEGS_WALK=["....kppppppk....","...kpppkkppk....","...kppk.kbbk....","...kppk.........","...kbbk........."];
+const RIGHT_HEAD=["................","....kkkkkk......","...khhhhhhkk....","..khhHHhhhhhk...",
+".khhhhhhhhhhhk..",".khhhhhhhshhsk..",".khhhhhssssssk..",".khhhhsssskssk..",
+".khhhsssssssssk.","..khhssssssSk...","...kkssssSk.....","....kkkkkk......"];
+const RIGHT_STAND=RIGHT_HEAD.concat(["....kjjjjk......","...kjjjjjk......","...kjjJJjjk.....",
+"...kjjJJjjk.....","...kjjJJjsk.....","...kjjjjjsk.....","....kjjjjk......","....kppppk......",
+"....kppppk......","....kppppk......","....kppppk......","....kbbbbk......"]);
+const RIGHT_WALK_A=RIGHT_HEAD.concat(["....kjjjjk......","...kjjjjjk......","..kjjjJJjk......",
+"..kjjjJJjk......","..ksjjJJjk......","...kjjjjjk......","....kjjjjk......","....kppppk......",
+"...kppkppk......","...kpk.kpk......","..kppk.kppk.....","..kbbk.kbbk....."]);
+const RIGHT_WALK_B=RIGHT_HEAD.concat(["....kjjjjk......","...kjjjjjk......","...kjjJJjjk.....",
+"...kjjJJjjk.....","...kjjJJjsk.....","...kjjjjjsk.....","....kjjjjk......","....kppppk......",
+"....kppppk......","....kppppk......","....kpppk.......","....kbbbk......."]);
+const SPR_W=16,SPR_H=24;
+function gridToCanvas(rows,flip){
+  const [cv,c]=mk(SPR_W,SPR_H);
+  for(let y=0;y<SPR_H;y++){
+    const row=((rows[y]||"")+"................").slice(0,SPR_W);
+    for(let x=0;x<SPR_W;x++){
+      const col=PAL[row[x]]; if(!col) continue;
+      c.fillStyle=col;c.fillRect(flip?SPR_W-1-x:x,y,1,1);
+    }
+  }
+  return quantize(cv);
+}
+const compose=(u,l,f)=>u.concat(f?l.map(r=>r.split("").reverse().join("")):l);
+const SPRITES={
+  down:[gridToCanvas(compose(DOWN_UPPER,LEGS_WALK,false)),
+        gridToCanvas(compose(DOWN_UPPER,LEGS_STAND,false)),
+        gridToCanvas(compose(DOWN_UPPER,LEGS_WALK,true)),
+        gridToCanvas(compose(DOWN_UPPER,LEGS_STAND,false))],
+  up:[gridToCanvas(compose(UP_UPPER,LEGS_WALK,true)),
+      gridToCanvas(compose(UP_UPPER,LEGS_STAND,false)),
+      gridToCanvas(compose(UP_UPPER,LEGS_WALK,false)),
+      gridToCanvas(compose(UP_UPPER,LEGS_STAND,false))],
+  right:[gridToCanvas(RIGHT_WALK_A),gridToCanvas(RIGHT_STAND),
+         gridToCanvas(RIGHT_WALK_B),gridToCanvas(RIGHT_STAND)],
+  left:[gridToCanvas(RIGHT_WALK_A,true),gridToCanvas(RIGHT_STAND,true),
+        gridToCanvas(RIGHT_WALK_B,true),gridToCanvas(RIGHT_STAND,true)]
+};
+
+/* =============================== world ============================== */
+const grid=v=>Array.from({length:MAPH},()=>Array(MAPW).fill(v));
+const pathG=grid(false),treeG=grid(false),waterG=grid(false),tallG=grid(false),
+      flowerG=grid(false),ledgeG=grid(false),shrubG=grid(false),occ=grid(false);
+const inMap=(x,y)=>x>=0&&y>=0&&x<MAPW&&y<MAPH;
+const at=(g,x,y)=>inMap(x,y)&&g[y][x];
+const OBJ=[];                                   // tall things, drawn sorted by base
+const addObj=(by,x,fn)=>OBJ.push({by,x,fn});
+
+/* The route is a polyline of strictly axis-aligned segments. Movement is
+   never diagonal: the walker goes straight down, turns, walks straight
+   across, turns again. Jogs sit midway between two landmarks.         */
+const ROUTE=[];
+(function buildRoute(){
+  let x=PATH_X+OFFS[0];
+  ROUTE.push({x,y:0});
+  SECTIONS.forEach((s,i)=>{
+    if(i===0) return;
+    const nx=PATH_X+OFFS[i%OFFS.length];
+    if(nx===x) return;
+    const jy=Math.round((SECTIONS[i-1].row+s.row)/2);
+    ROUTE.push({x,y:jy});
+    ROUTE.push({x:nx,y:jy});
+    x=nx;
+  });
+  ROUTE.push({x,y:ROAD_END});
+})();
+const ARC=[0];
+for(let i=1;i<ROUTE.length;i++)
+  ARC[i]=ARC[i-1]+(Math.abs(ROUTE[i].x-ROUTE[i-1].x)+Math.abs(ROUTE[i].y-ROUTE[i-1].y))*TW;
+const ROUTE_LEN=ARC[ARC.length-1];
+
+const segOf=s=>{let i=0;while(i<ROUTE.length-2&&ARC[i+1]<s)i++;return i;};
+function routeAt(s,seg){
+  s=Math.max(0,Math.min(ROUTE_LEN,s));
+  const i=seg===undefined?segOf(s):seg;
+  const a=ROUTE[i], b=ROUTE[i+1];
+  const len=ARC[i+1]-ARC[i], t=len?(s-ARC[i])/len:0;
+  const tx=a.x+(b.x-a.x)*t, ty=a.y+(b.y-a.y)*t;
+  const horiz=a.y===b.y;
+  return {x:tx*TW+TW, y:ty*TW+TW, horiz,
+          fwd: horiz?(b.x>a.x?"right":"left"):(b.y>a.y?"down":"up")};
+}
+const PT=ROUTE.map(p=>({px:p.x*TW+TW,py:p.y*TW+TW}));
+/* Distance along the route by the time the walker has reached world row
+   wy. A sideways jog is counted in full the moment its row is reached,
+   so the target leaps forward and the walker has ground to make up. */
+function arcAtWorldY(wy){
+  let arc=0;
+  for(let i=0;i<PT.length-1;i++){
+    const a=PT[i],b=PT[i+1],len=ARC[i+1]-ARC[i];
+    if(a.px===b.px){
+      if(wy<=b.py) return arc+Math.max(0,wy-a.py);
+      arc+=len;
+    } else {
+      if(wy<a.py) return arc;
+      arc+=len;
+    }
+  }
+  return ROUTE_LEN;
+}
+function roadXAtRow(row){
+  for(let i=0;i<ROUTE.length-1;i++){
+    const a=ROUTE[i],b=ROUTE[i+1];
+    if(a.x===b.x && row>=Math.min(a.y,b.y) && row<=Math.max(a.y,b.y)) return a.x;
+  }
+  return PATH_X;
+}
+
+/* the road is 4 tiles wide, centred on the walker's line */
+for(let i=0;i<ROUTE.length-1;i++){
+  const a=ROUTE[i],b=ROUTE[i+1];
+  const sx=Math.sign(b.x-a.x), sy=Math.sign(b.y-a.y);
+  let x=a.x,y=a.y;
+  for(;;){
+    for(let dy=-1;dy<=2;dy++) for(let dx=-1;dx<=2;dx++)
+      if(inMap(x+dx,y+dy)) pathG[y+dy][x+dx]=true;
+    if(x===b.x&&y===b.y) break;
+    x+=sx; y+=sy;
+  }
+}
+
+/* forest down both sides, its inner edge following the road; closed
+   over the top of town and past the end of the road */
+const LEFT=[],RIGHT=[];
+for(let y=0;y<MAPH;y++){
+  const rx=roadXAtRow(y), town=y<FIRST_ROW+8;
+  LEFT[y]=Math.max(0,rx-(town?10:8)+Math.round(1.2*Math.sin(y*0.23)));
+  RIGHT[y]=Math.min(MAPW-1,rx+17+Math.round(1.5*Math.sin(y*0.17+2)));
+  for(let x=0;x<MAPW;x++){
+    if(x<=LEFT[y]||x>=RIGHT[y]||y<FIRST_ROW-12||y>ROAD_END+2) treeG[y][x]=true;
+  }
+}
+for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++) if(pathG[y][x]) treeG[y][x]=false;
+
+/* the lake sits on the straight run before THESIS (MantaNet works on
+   underwater imagery); the road crosses it on a bridge */
+const LAKE_I=SECTIONS.findIndex(s=>s.name==="THESIS");
+let LAKE=null;
+if(LAKE_I>0){
+  const a=SECTIONS[LAKE_I-1].row, b=SECTIONS[LAKE_I].row;
+  const cy=(a+b)/2, cx=roadXAtRow(Math.round(cy))+2.5;
+  const ry=Math.max(3,(b-a)/2-6.5), rx=11, seed=2.1;
+  for(let y=Math.floor(cy-ry*1.4);y<=Math.ceil(cy+ry*1.4);y++)
+    for(let x=0;x<MAPW;x++){
+      if(!inMap(x,y)) continue;
+      const dx=(x+.5-cx)/rx, dy=(y+.5-cy)/ry, an=Math.atan2(dy,dx);
+      const wob=1+0.2*Math.sin(an*3+seed)+0.1*Math.sin(an*5-seed*2);
+      if(dx*dx+dy*dy<wob*wob){ waterG[y][x]=true; treeG[y][x]=false; }
+    }
+  LAKE={top:Math.floor(cy-ry*1.4),bot:Math.ceil(cy+ry*1.4)};
+}
+const nearLake=y=>LAKE&&y>=LAKE.top-2&&y<=LAKE.bot+2;
+
+/* let the road breathe: it bulges a tile here and there */
+for(let y=1;y<ROAD_END;y++){
+  if(nearLake(y)) continue;
+  const rx=roadXAtRow(y);
+  if(Math.sin(y*0.37+1)>0.72&&!treeG[y][rx-2]) pathG[y][rx-2]=true;
+  if(Math.sin(y*0.29+3)>0.78&&!treeG[y][rx+3]) pathG[y][rx+3]=true;
+}
+
+/* ---------- placement helpers ---------- */
+const R=rng(11);
+const ri=(a,b)=>b<=a?a:a+Math.floor(R()*(b-a+1));
+const isFree=(x,y)=>x>=1&&y>=0&&x<MAPW-1&&y<MAPH&&!pathG[y][x]&&!treeG[y][x]&&!waterG[y][x]
+  &&!tallG[y][x]&&!ledgeG[y][x]&&!occ[y][x]&&!shrubG[y][x]&&!flowerG[y][x];
+function areaFree(x,y,w,h){for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++) if(!isFree(xx,yy)) return false;return true;}
+function claim(x,y,w,h){for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++) if(inMap(xx,yy)) occ[yy][xx]=true;}
+function clearArea(x,y,w,h){
+  for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++){
+    if(!inMap(xx,yy)) continue;
+    treeG[yy][xx]=tallG[yy][xx]=ledgeG[yy][xx]=shrubG[yy][xx]=flowerG[yy][xx]=waterG[yy][xx]=false;
+  }
+}
+function tryTree(x,y){
+  if(!areaFree(x,y,2,2)||at(pathG,x,y-1)||at(pathG,x+1,y-1)) return false;
+  claim(x,y,2,2);
+  const img=BIG_TREES[(x+y)%2];
+  addObj((y+2)*TW,x,g=>g.drawImage(img,x*TW,y*TW-8));
+  return true;
+}
+function tryTall(x0,y0,w,h){
+  for(let y=y0;y<y0+h;y++) for(let x=x0;x<x0+w;x++){
+    const corner=(y===y0||y===y0+h-1)&&(x===x0||x===x0+w-1);
+    if(corner&&R()<.6) continue;
+    if(isFree(x,y)) tallG[y][x]=true;
+  }
+}
+function tryLedge(y,x0,x1){
+  let run=[];
+  const commit=()=>{if(run.length>=3) for(const x of run) ledgeG[y][x]=true; run=[];};
+  for(let x=x0;x<=x1;x++){ if(isFree(x,y)&&isFree(x,y+1)) run.push(x); else commit(); }
+  commit();
+}
+function scatter(n,y0,y1,place){
+  for(let i=0;i<n;i++){
+    const y=ri(y0,y1), x=ri(LEFT[y]+1,RIGHT[y]-1);
+    if(isFree(x,y)) place(x,y);
+  }
+}
+const placeShrub=(x,y)=>{shrubG[y][x]=true;};
+const placeFlowers=(x,y)=>{flowerG[y][x]=true; if(isFree(x+1,y)&&R()<.6) flowerG[y][x+1]=true;};
+const placeRock=(x,y)=>{claim(x,y,1,1);addObj((y+1)*TW,x,g=>paintRock(g,x*TW,y*TW,false));};
+const placeLamp=(x,y)=>{claim(x,y,1,1);addObj((y+1)*TW,x,g=>paintLamp(g,x*TW,y*TW));};
+const placeSign=(x,y)=>{claim(x,y,1,1);addObj((y+1)*TW,x,g=>paintSign(g,x*TW,y*TW));};
+
+/* ---------- buildings ---------- */
+const LOOKS={
+  "START":{roof:"green",wall:"cream",chimney:true,w:5,h:4,icon:"star"},
+  "ABOUT ME":{roof:"brown",wall:"cream",chimney:true,w:6,h:5,icon:"heart"},
+  "EXPERIENCE":{roof:"slate",wall:"cream",w:7,h:5,icon:"case"},
+  "PROJECTS":{roof:"teal",wall:"white",w:7,h:5,icon:"flask",antenna:true},
+  "THESIS":{roof:"navy",wall:"pale",w:6,h:5,dome:true},
+  "EDUCATION":{roof:"orange",wall:"cream",w:7,h:5,icon:"book"},
+  "TECH STACK":{roof:"purple",wall:"wood",w:6,h:4,icon:"gear"},
+  "CONTACT":{roof:"yellow",wall:"white",w:5,h:4,icon:"mail",mailbox:true}
+};
+const ROOFLIST=["green","brown","slate","teal","orange","purple","yellow","navy"];
+function addBuilding(b){
+  b.img=buildBuilding(b);
+  clearArea(b.x-1,b.y-1,b.w+2,b.h+2);
+  claim(b.x-1,b.y-1,b.w+2,b.h+1);
+  /* a front path from the door out to the road */
+  const ay=b.y+b.h, dx=b.x+b.door, rx=roadXAtRow(ay);
+  const [x0,x1]=dx>rx?[rx+2,dx]:[dx,rx-1];
+  for(let x=x0;x<=x1;x++) if(inMap(x,ay)){pathG[ay][x]=true;treeG[ay][x]=false;occ[ay][x]=false;}
+  addObj((b.y+b.h)*TW,b.x,g=>g.drawImage(b.img,b.x*TW-OVER,b.y*TW-BTOP));
+}
+SECTIONS.forEach((s,i)=>{
+  const rx=roadXAtRow(s.row);
+  const look=LOOKS[s.name]||{roof:ROOFLIST[i%ROOFLIST.length],w:6,h:5,chimney:i%3===0};
+  const b=Object.assign({x:rx+4,y:s.row+2-look.h,door:Math.floor(look.w/2)},look);
+  addBuilding(b);
+  if(b.mailbox){
+    const mx=b.x+b.door+1, my=b.y+b.h;
+    clearArea(mx,my,1,1);claim(mx,my,1,1);
+    addObj((my+1)*TW,mx,g=>paintMailbox(g,mx*TW,my*TW));
+  }
+  /* a signpost at the roadside for every landmark */
+  let sx=rx-2; const sy=s.row-1;
+  while(sx>1&&pathG[sy][sx]) sx--;
+  clearArea(sx,sy,1,1);placeSign(sx,sy);
+});
+
+/* ---------- the town at the start ---------- */
+(function town(){
+  const S=FIRST_ROW, rx=roadXAtRow(S);
+  /* a square with a fountain, lamps on the corners and two benches */
+  for(let y=S-8;y<=S-3;y++) for(let x=rx-7;x<=rx-2;x++){ pathG[y][x]=true; treeG[y][x]=false; }
+  const fx=rx-6, fy=S-7;
+  claim(fx,fy,2,2);
+  addObj((fy+2)*TW,fx,g=>paintFountain(g,fx*TW+8,fy*TW+8));
+  for(const [lx,ly] of [[rx-7,S-8],[rx-2,S-8],[rx-7,S-3],[rx-2,S-3]]) placeLamp(lx,ly);
+  for(const bx of [rx-5,rx-4]){claim(bx,S-3,1,1);addObj((S-2)*TW,bx,g=>paintBench(g,bx*TW,(S-3)*TW));}
+  /* a neighbour's house below the square */
+  addBuilding({x:rx-7,y:S+1,w:5,h:4,door:2,roof:"teal",wall:"wood",chimney:true});
+  /* a rock-ringed garden of tall grass beside the first landmark */
+  const gx=rx+4, gy=S-12, gw=8, gh=6;
+  clearArea(gx,gy,gw,gh);
+  for(let y=gy;y<gy+gh;y++) for(let x=gx;x<gx+gw;x++){
+    const edge=y===gy||y===gy+gh-1||x===gx||x===gx+gw-1;
+    if(edge){claim(x,y,1,1);addObj((y+1)*TW,x,g=>paintPebble(g,x*TW,y*TW));}
+  }
+  tryTall(gx+1,gy+1,gw-2,gh-2);
+  shrubG[gy+1][gx+1]=true;tallG[gy+1][gx+1]=false;
+  /* lamps along the road through town */
+  for(const ly of [S+6,S+12]){ placeLamp(rx-2,ly); }
+  for(let i=0;i<6;i++){const y=ri(S-9,S+8),x=ri(LEFT[y]+1,rx-3);if(isFree(x,y))placeFlowers(x,y);}
+})();
+
+/* ---------- scenery between landmarks ---------- */
+SECTIONS.forEach((s,i)=>{
+  if(i===SECTIONS.length-1) return;
+  const next=SECTIONS[i+1];
+  const top=s.row+3, bot=next.row-4, mid=Math.round((s.row+next.row)/2);
+  const lx0=y=>LEFT[y]+1, lx1=y=>roadXAtRow(y)-3;
+  const rx0=y=>roadXAtRow(y)+4, rx1=y=>RIGHT[y]-2;
+  if(LAKE&&i===LAKE_I-1){
+    /* rocks out in the water, reeds of tall grass on the shore */
+    for(let n=0,placed=0;n<40&&placed<5;n++){
+      const y=ri(LAKE.top,LAKE.bot), x=ri(LEFT[y]+1,RIGHT[y]-1);
+      if(!waterG[y][x]||pathG[y][x]||occ[y][x]) continue;
+      if(!(at(waterG,x-1,y)&&at(waterG,x+1,y)&&at(waterG,x,y-1)&&at(waterG,x,y+1))) continue;
+      if(Math.abs(x-roadXAtRow(y)-0.5)<4) continue;
+      claim(x,y,1,1);placed++;
+      addObj((y+1)*TW,x,g=>paintRock(g,x*TW,y*TW,true));
+    }
+    tryTall(lx0(top+1),top+1,4,2);
+    tryTall(rx0(bot-2)+2,bot-2,5,2);
+  } else {
+    const k=i%3;
+    if(k===0){
+      tryTall(lx0(mid-6),mid-6,lx1(mid-6)-lx0(mid-6)+1,4);
+      tryLedge(mid+4,lx0(mid+4),lx1(mid+4));
+      tryTall(rx0(mid+4)+1,mid+4,5,3);
+      tryLedge(mid-4,rx0(mid-4),rx0(mid-4)+9);
+    } else if(k===1){
+      tryLedge(mid-4,lx0(mid-4),lx1(mid-4));
+      tryTall(lx0(mid+4),mid+4,4,3);
+      tryTall(rx0(mid-6)+2,mid-6,6,4);
+      tryLedge(mid+5,rx0(mid+5),rx0(mid+5)+10);
+    } else {
+      tryTall(rx0(mid+3)+1,mid+3,6,3);
+      tryLedge(mid+6,lx0(mid+6),lx1(mid+6));
+      tryLedge(mid-5,rx0(mid-5),rx0(mid-5)+8);
+      tryTall(lx0(mid-7),mid-7,3,3);
+    }
+  }
+  for(let n=0,placed=0;n<40&&placed<7;n++){
+    const y=ri(top,bot-1), left=R()<.45;
+    const x=left?ri(lx0(y),lx1(y)-1):ri(rx0(y),rx1(y)-1);
+    if(tryTree(x,y)) placed++;
+  }
+  scatter(10,top,bot,placeShrub);
+  scatter(12,top,bot,placeFlowers);
+  scatter(2,top,bot,placeRock);
+});
+/* past the last landmark: a little grass before the trees close in */
+{
+  const y0=LAST_ROW+4, y1=ROAD_END+1, rx=roadXAtRow(y0);
+  tryTall(rx-6,y0+2,3,3);
+  for(let n=0;n<10;n++) tryTree(ri(rx+4,rx+12),ri(y0,y1-1));
+  scatter(6,y0,y1,placeShrub);scatter(6,y0,y1,placeFlowers);
+}
+
+/* forest trees are objects too, so a lone tree can stand in front of
+   the treeline and a building's roof can tuck behind it */
+for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+  if(!treeG[y][x]) continue;
+  const img=WALL_TREES[(x*7+y*3)%2];
+  addObj((y+1)*TW,x,g=>g.drawImage(img,x*TW,y*TW-8));
+}
+
+/* ---------- bake ---------- */
+const [ground,gc]=mk(WORLD_W,WORLD_H);
+for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+  texGrass(gc,x*TW,y*TW,x,y);
+  const inner=[[0,-1],[1,0],[0,1],[-1,0]].every(([dx,dy])=>!inMap(x+dx,y+dy)||treeG[y+dy][x+dx]);
+  if(treeG[y][x]&&inner) rect(gc,COL.forestFill,x*TW,y*TW,TW,TW);
+  if(tallG[y][x]) texTall(gc,x*TW,y*TW);
+}
+const [SC,SCC]=mk(WORLD_W,WORLD_H);
+const scratch=()=>{SCC.clearRect(0,0,WORLD_W,WORLD_H);return SCC;};
+const shapeCache=new Map();
+function tileShape(bits,r){
+  const key=bits+"|"+r;
+  let s=shapeCache.get(key); if(s) return s;
+  const [cv,c]=mk(24,24);
+  rect(c,"#fff",4,4,16,16);
+  const N=bits&1,E=bits&2,S=bits&4,W=bits&8;
+  c.globalCompositeOperation="destination-out";
+  for(const [on,cx,cy,sx,sy] of [[!N&&!W,4,4,1,1],[!N&&!E,20,4,-1,1],
+                                 [!S&&!W,4,20,1,-1],[!S&&!E,20,20,-1,-1]]){
+    if(!on) continue;
+    const ox=cx+sx*r,oy=cy+sy*r;
+    for(let py=0;py<r;py++) for(let px=0;px<r;px++){
+      const X=cx+sx*px+(sx<0?-1:0),Y=cy+sy*py+(sy<0?-1:0);
+      const dx=X+.5-ox,dy=Y+.5-oy;
+      if(dx*dx+dy*dy>r*r) c.fillRect(X,Y,1,1);
+    }
+  }
+  shapeCache.set(key,cv);return cv;
+}
+function buildMask(pred,r){
+  const [cv,c]=mk(WORLD_W,WORLD_H);
+  for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+    if(!pred(x,y)) continue;
+    const bits=(pred(x,y-1)?1:0)|(pred(x+1,y)?2:0)|(pred(x,y+1)?4:0)|(pred(x-1,y)?8:0);
+    c.drawImage(tileShape(bits,r),x*TW-4,y*TW-4);
+  }
+  return cv;
+}
+{ /* lake: dirt shore, dark lip, then water */
+  const pred=(x,y)=>at(waterG,x,y);
+  const mask=buildMask(pred,6), tc=scratch();
+  for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++) if(pred(x,y)) texWater(tc,x*TW,y*TW,x,y);
+  clipTo(SC,mask);
+  const d3=dilate(mask,3), d4=dilate(mask,4);
+  const outer=band(d4,d3,COL.shoreDark), shore=band(d3,mask,COL.shore);
+  gc.drawImage(outer,0,0);gc.drawImage(shore,0,0);gc.drawImage(SC,0,0);
+  const e1=erode(mask),e2=erode(e1),e3=erode(e2);
+  const lip=band(mask,e2,COL.waterEdge), deep=band(e2,e3,COL.waterDeep);
+  gc.drawImage(lip,0,0);gc.drawImage(deep,0,0);
+  free(mask,d3,d4,outer,shore,e1,e2,e3,lip,deep);
+}
+{ /* sand: soft darker grass halo, then sand with a two-step rim */
+  const pred=(x,y)=>at(pathG,x,y);
+  const mask=buildMask(pred,6), tc=scratch();
+  for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++) if(pred(x,y)) texSand(tc,x*TW,y*TW,x,y);
+  clipTo(SC,mask);
+  const d1=dilate(mask,1), halo=band(d1,mask,COL.grassEdge);
+  gc.drawImage(halo,0,0);gc.drawImage(SC,0,0);
+  const e1=erode(mask),e2=erode(e1);
+  const rim=band(mask,e1,COL.sandRim), rim2=band(e1,e2,COL.sandDark);
+  gc.drawImage(rim,0,0);gc.drawImage(rim2,0,0);
+  free(mask,d1,halo,e1,e2,rim,rim2);
+}
+free(SC);
+/* the bridge: wherever the road runs over water, plus a plank's width
+   onto each bank so it lands on the shore */
+const bridgeAt=(x,y)=>at(pathG,x,y)&&(at(waterG,x,y)||at(waterG,x,y-1)||at(waterG,x,y+1));
+for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++)
+  if(bridgeAt(x,y)) paintBridge(gc,x*TW,y*TW,bridgeAt(x-1,y),bridgeAt(x+1,y));
+for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+  if(ledgeG[y][x]) paintLedge(gc,x*TW,y*TW,ledgeG[y][x-1],ledgeG[y][x+1]);
+  if(flowerG[y][x]) paintFlowers(gc,x*TW,y*TW,x,y);
+  if(shrubG[y][x]) paintShrub(gc,x*TW,y*TW);
+}
+OBJ.sort((a,b)=>a.by-b.by||a.x-b.x);
+for(const o of OBJ) o.fn(gc);
+quantize(ground);
+/* open water away from the bridge and the rocks shimmers */
+const SHIMMER=[];
+for(let y=1;y<MAPH-1;y++) for(let x=1;x<MAPW-1;x++)
+  if(waterG[y][x]&&waterG[y-1][x]&&waterG[y+1][x]&&waterG[y][x-1]&&waterG[y][x+1]
+     &&!bridgeAt(x,y)&&!occ[y][x]) SHIMMER.push([x,y]);
+
+/* ============================ presentation ========================== */
+const cv=document.getElementById("world"), ctx=cv.getContext("2d");
+const bannerEl=document.getElementById("banner"), bannerText=document.getElementById("bannerText");
+const cueEl=document.getElementById("scrollcue"), barEl=document.querySelector("#progress i");
+const contentEl=document.getElementById("content");
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let SCALE=3, viewW=0, viewH=0, mobile=false, camX=0;
+let SCRY=0, WALK_FROM=0, WALK_RANGE=1;
+/* Road before the first landmark and after the last, as a fraction of
+   what is on screen rather than a fixed distance. */
+const LEAD_F=0.04, TRAIL_F=0.11;
+function layout(){
+  const vw=innerWidth, vh=innerHeight;
+  mobile=vw<900;
+  SCALE=Math.max(2,Math.min(5,Math.round(vw/460)));
+  if(vw/SCALE>WORLD_W) SCALE=Math.ceil(vw/WORLD_W);
+  cv.width=Math.ceil(vw/SCALE); cv.height=Math.ceil(vh/SCALE);
+  viewW=cv.width; viewH=cv.height;
+  ctx.imageSmoothingEnabled=false;
+  /* The camera never moves sideways, so the world and the content
+     column cannot come apart. It is parked so the road's whole
+     left-right range stays on screen. */
+  const pathCentre=(PATH_X+1)*TW;
+  camX=Math.max(0,Math.min(WORLD_W-viewW,Math.round(pathCentre-viewW*(mobile?0.36:0.26))));
+  const frac=mobile?0.2:0.46, centre=mobile?0.62:0.5;
+  const first=FIRST_ROW*TW, last=LAST_ROW*TW;
+  const lead=Math.round(viewH*LEAD_F), trail=Math.round(viewH*TRAIL_F);
+  SCRY=Math.min(Math.round(viewH*frac),first-lead);
+  if(WORLD_H-viewH+SCRY < last+32)
+    SCRY=Math.min(first-lead,Math.max(SCRY,last+32-(WORLD_H-viewH)));
+  SCRY=Math.max(8,SCRY);
+  WALK_FROM=first-lead;
+  const walkTo=Math.min(WORLD_H-viewH+SCRY,last+trail);
+  WALK_RANGE=Math.max(1,walkTo-WALK_FROM);
+  contentEl.style.height=Math.round(WALK_RANGE*SCALE+vh)+"px";
+  /* a panel is centred at exactly the scroll that puts the walker on
+     its landmark */
+  for(const s of SECTIONS)
+    s.el.style.top=Math.round((s.row*TW-WALK_FROM)*SCALE+vh*centre)+"px";
+}
+addEventListener("resize",()=>{try{layout();}catch(e){fatal(e);}});
+layout();
+
+const walker={dir:"down",frame:1,dist:0,step:0,idle:0,arc:null,prev:null,seg:0,lastY:null,bank:0};
+let active=null, bannerTimer=0, t=0;
+
+function draw(dt){
+  const maxScroll=Math.max(1,WALK_RANGE*SCALE);
+  const sy=Math.max(0,Math.min(maxScroll,scrollY));
+  /* one pixel of scroll is one pixel of world */
+  const walkY=WALK_FROM+sy/SCALE;
+  const camY=walkY-SCRY;
+
+  /* The walker chases the route position for the row the camera is on.
+     At a turn the target jumps ahead by the length of the jog, so the
+     walker eases sideways across the road and then makes it back up. */
+  const target=arcAtWorldY(walkY);
+  const dWalk=walker.lastY===null?0:walkY-walker.lastY;
+  walker.lastY=walkY;
+  if(walker.arc===null||Math.abs(target-walker.arc)>420){
+    walker.arc=target; walker.seg=segOf(target); walker.prev=target; walker.bank=0;
+  } else {
+    let a=walker.arc+dWalk+walker.bank;
+    walker.bank=0;
+    a+=(target-a)*(1-Math.exp(-dt*7.5));
+    const lo=ARC[walker.seg], hi=ARC[walker.seg+1];
+    if(a>hi){
+      if(walker.seg<ROUTE.length-2){ walker.bank=a-hi; walker.seg++; }
+      a=hi;
+    } else if(a<lo){
+      if(walker.seg>0){ walker.bank=a-lo; walker.seg--; }
+      a=lo;
+    }
+    walker.arc=a;
+  }
+  const pos=routeAt(walker.arc,walker.seg);
+
+  const moved=walker.arc-(walker.prev===null?walker.arc:walker.prev);
+  walker.prev=walker.arc;
+  if(Math.abs(moved)>0.12){
+    walker.dir=moved<0
+      ? {down:"up",up:"down",left:"right",right:"left"}[pos.fwd]
+      : pos.fwd;
+    walker.dist+=Math.abs(moved);
+    walker.idle=0;
+    const STRIDE=9;
+    while(walker.dist>STRIDE){
+      walker.dist-=STRIDE;
+      walker.step=(walker.step+1)%4;
+      walker.frame=[0,1,2,1][walker.step];
+    }
+  } else {
+    walker.idle+=dt;
+    if(walker.idle>0.12){ walker.frame=1; walker.dist=0; }
+  }
+
+  ctx.clearRect(0,0,viewW,viewH);
+  ctx.drawImage(ground,camX,camY,viewW,viewH,0,0,viewW,viewH);
+
+  if(!reduced){
+    const f=Math.floor(t*4)%4;
+    for(const [x,y] of SHIMMER){
+      const px=x*TW-camX, py=y*TW-camY;
+      if(py<-TW||py>viewH) continue;
+      waterShimmer(ctx,px,py,x,y,f);
+    }
+  }
+  const sx=Math.round(pos.x-SPR_W/2-camX);
+  const sy2=Math.round(pos.y-camY);
+  ctx.drawImage(SPRITES[walker.dir][walker.frame],sx,sy2-SPR_H+8);
+
+  barEl.style.height=((sy/maxScroll)*100).toFixed(2)+"%";
+  cueEl.style.opacity=sy>120?0:1;
+  let best=null,bd=1e9;
+  for(const sec of SECTIONS){
+    const dd=Math.abs(sec.row*TW-walkY);
+    if(dd<bd){bd=dd;best=sec;}
+  }
+  if(best&&best!==active&&bd<150){
+    active=best; bannerText.textContent=best.name;
+    bannerEl.classList.add("on"); bannerTimer=2.2;
+  }
+  if(bannerTimer>0){ bannerTimer-=dt; if(bannerTimer<=0) bannerEl.classList.remove("on"); }
+}
+
+let prev=performance.now();
+function loop(now){
+  let dt=(now-prev)/1000; prev=now; if(dt>0.1) dt=0.1;
+  t+=dt;
+  try{ draw(dt); }catch(e){ fatal(e); return; }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
 </html>

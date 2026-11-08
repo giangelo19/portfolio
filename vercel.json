@@ -1,3 +1,8 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "redirects": [
+    { "source": "/route", "destination": "/" },
+    { "source": "/route/", "destination": "/" },
+    { "source": "/resume", "destination": "/classic/resume" }
+  ],
+  "rewrites": [{ "source": "/classic/(.*)", "destination": "/classic/index.html" }]
 }

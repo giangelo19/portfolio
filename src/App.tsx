@@ -668,7 +668,7 @@ function ResumePage({ onBack }: { onBack: (e?: React.MouseEvent) => void }) {
           }}
         >
           <a
-            href="/"
+            href="/classic/"
             onClick={onBack}
             className="flex items-center gap-2 px-3 transition-colors"
             style={{
@@ -890,12 +890,12 @@ export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [showTop, setShowTop] = useState(false);
   const [page, setPage] = useState<"home" | "resume">(() =>
-    typeof window !== "undefined" && window.location.pathname === "/resume" ? "resume" : "home"
+    typeof window !== "undefined" && window.location.pathname === "/classic/resume" ? "resume" : "home"
   );
 
   useEffect(() => {
     const onPopState = () => {
-      setPage(window.location.pathname === "/resume" ? "resume" : "home");
+      setPage(window.location.pathname === "/classic/resume" ? "resume" : "home");
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -920,14 +920,14 @@ export default function App() {
 
   const goToResume = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.history.pushState({}, "", "/resume");
+    window.history.pushState({}, "", "/classic/resume");
     setPage("resume");
     window.scrollTo(0, 0);
   };
 
   const goHome = (e?: React.MouseEvent) => {
     e?.preventDefault();
-    window.history.pushState({}, "", "/");
+    window.history.pushState({}, "", "/classic/");
     setPage("home");
     window.scrollTo(0, 0);
   };
@@ -1090,7 +1090,7 @@ export default function App() {
             >
               Full-stack developer and computer vision researcher
             </p>
-            <PrimaryButton href="/resume" onClick={goToResume}>
+            <PrimaryButton href="/classic/resume" onClick={goToResume}>
               View resume
             </PrimaryButton>
           </div>
