@@ -98,40 +98,91 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .when{font-family:"Silkscreen",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
 
 /* fixed chrome */
-#banner{position:fixed;left:18px;top:16px;z-index:3;pointer-events:none;
-  opacity:0;transition:opacity .25s}
-#banner.on{opacity:1}
-#banner .paper{padding:7px 13px;font-family:"Silkscreen",monospace;font-size:12px}
+/* the banner names the current stop and opens the stop list */
+#banner{position:fixed;left:18px;top:16px;z-index:4}
+#stopsBtn{all:unset;display:block;cursor:pointer}
+#stopsBtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+#stopsBtn .win,#stops .win{display:block}
+#stopsBtn .band,#stopsBtn .paper{display:block}
+#stopsBtn .paper{display:flex;align-items:center;gap:10px;min-height:40px;padding:6px 13px;
+  font-family:"Silkscreen",monospace;font-size:12px}
+#stopsBtn .caret{font-size:12px;color:var(--ink-soft)}
+#stopsBtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+#stops{margin-top:8px;width:max-content;min-width:100%}
+#stops[hidden]{display:none}
+#stops .paper{padding:6px}
+#stops ol{list-style:none;max-height:min(60vh,440px);overflow-y:auto}
+#stops button{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;
+  min-height:40px;padding:11px 12px;font-family:"Silkscreen",monospace;font-size:12px;color:var(--ink)}
+#stops button:hover,#stops button:focus-visible{background:#e8eef8}
+#stops button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+#stops button[aria-current]{color:var(--accent)}
+#stops button[aria-current]::before{content:"\25B6  "}
 #scrollcue{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:3;
   font-family:"Silkscreen",monospace;font-size:12px;color:#f4f4e8;background:rgba(25,24,39,.78);padding:6px 10px;
   transition:opacity .4s;pointer-events:none}
 #progress{position:fixed;right:0;top:0;width:5px;height:100%;z-index:3;
   background:rgba(0,0,0,.14)}
 #progress i{display:block;width:100%;background:var(--accent);height:0}
+/* panels stay hidden until the map is built and they have been placed */
+body:not(.ready) .sec{visibility:hidden!important;transition:none!important}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 #err{position:fixed;inset:0;z-index:9;background:#1b0f14;color:#ff9a9a;
   font:13px ui-monospace,monospace;padding:24px;white-space:pre-wrap;display:none}
 
 @media (max-width:900px){
-  .sec{width:min(460px,92vw);left:50%;transform:translate(-50%,-50%)}
   p{font-size:16px}
   #banner{left:12px;top:12px}
+  .chip,.tag,.when,.sub{font-size:13px}
+  .links{gap:4px 20px}
+  .links a{display:inline-flex;align-items:center;min-height:44px;font-size:16px}
+}
+/* Phone layout (body.m, set from script on the same breakpoint as the
+   camera): the map fills the top of the screen and the nearest stop's
+   card sits in a sheet below it. A tall card scrolls inside the sheet. */
+body.m .sec{left:10px;right:10px;width:auto;top:auto;bottom:10px;
+  max-height:calc(100% - var(--sheet-top,46vh) - 10px);
+  transform:translateY(10px);opacity:0;visibility:hidden;
+  transition:opacity .22s ease-out,transform .22s ease-out,visibility 0s linear .22s}
+body.m .sec.on{opacity:1;visibility:visible;transform:none;
+  transition:opacity .22s ease-out,transform .22s ease-out}
+/* short cards keep their own height; tall ones stop at the sheet line
+   and scroll inside */
+body.m .sec>.win{flex:0 1 auto;min-height:0;display:flex;flex-direction:column}
+body.m .sec>.win>.band{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+body.m .sec>.win>.band>.paper{flex:1 1 auto;min-height:0;overflow-y:auto;padding:16px 16px 20px}
+body.m #scrollcue{bottom:auto;top:calc(var(--sheet-top,46vh) - 40px)}
+@media (prefers-reduced-motion:reduce){
+  body.m .sec,body.m .sec.on{transition:none;transform:none}
 }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
 </style>
 </head>
 <body>
 <canvas id="world" aria-hidden="true"></canvas>
-<div id="banner" aria-hidden="true"><div class="win"><div class="band"><div class="paper" id="bannerText">START</div></div></div></div>
+<div id="banner">
+  <button id="stopsBtn" type="button" aria-expanded="false" aria-controls="stops">
+    <span class="win"><span class="band"><span class="paper">
+      <span class="visually-hidden">Current stop: </span><span id="bannerText">START</span>
+      <span class="caret" aria-hidden="true">▼</span>
+    </span></span></span>
+  </button>
+  <nav id="stops" aria-label="Stops on the route" hidden>
+    <div class="win"><div class="band"><div class="paper"><ol id="stopList"></ol></div></div></div>
+  </nav>
+</div>
 <div id="progress" aria-hidden="true"><i></i></div>
 <div id="scrollcue" aria-hidden="true">▼ SCROLL TO WALK ▼</div>
 <div id="err"></div>
 
 <!--
-  Content comes from public/resume.pdf. data-row is the map row each panel's
-  landmark sits on; leave about 19 rows between panels, more for tall ones.
+  Content comes from public/resume.pdf. Each section is one stop on the route.
+  data-name: the banner and stop-list label. data-look: which building stands
+  at the stop (see LOOKS in the script). data-lake: the road crosses the lake
+  just before this stop. Spacing between stops is worked out automatically.
 -->
 <main id="content">
-  <section class="sec" data-name="START" data-row="21">
+  <section class="sec" data-name="START" data-look="home">
     <div class="win"><div class="band"><div class="paper">
       <h1>Gian Angelo Tongzon</h1>
       <p>Full-stack developer and computer vision researcher. Fourth-year BS Computer Science student at UP Tacloban College, Hilongos, Leyte.</p>
@@ -139,7 +190,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </div></div></div>
   </section>
 
-  <section class="sec" data-name="ABOUT ME" data-row="40">
+  <section class="sec" data-name="ABOUT ME" data-look="about">
     <div class="win"><div class="band"><div class="paper">
       <h2>About Me</h2>
       <p>I'm a fourth-year BS Computer Science student and DOST-SEI scholar at the University of the Philippines Tacloban College. I'm currently building MantaNet, a multi-task CNN framework for deep-sea object detection and semantic segmentation, as my undergraduate thesis.</p>
@@ -147,7 +198,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </div></div></div>
   </section>
 
-  <section class="sec" data-name="EXPERIENCE" data-row="59">
+  <section class="sec" data-name="EXPERIENCE" data-look="office">
     <div class="win"><div class="band"><div class="paper">
       <h2>Experience</h2>
       <div class="cards">
@@ -166,29 +217,34 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </div></div></div>
   </section>
 
-  <section class="sec" data-name="PROJECTS" data-row="82">
+  <!--
+    On desktop this is one stop. On a phone (narrower than 900px) data-split
+    turns it into one stop per card: data-stop names each stop and data-look
+    picks its building; the heading becomes "Project 1 of 4" and so on.
+  -->
+  <section class="sec" data-name="PROJECTS" data-look="lab" data-split="Project">
     <div class="win"><div class="band"><div class="paper">
       <h2>Projects</h2>
       <div class="cards">
-        <div class="card">
+        <div class="card" data-stop="PROJECT: HL-SMS" data-look="hall">
           <div class="row"><h3>Hilongos Service Management System</h3><span class="when">2026</span></div>
           <div class="org">Frontend Developer · Municipality of Hilongos, Leyte</div>
           <p>React web portal for the municipality's service management system, covering resident booking and the internal staff workflow for 12 municipal offices. Designed a no-account, multi-step booking flow with reference-code tracking, the full service request lifecycle UI, and a typo-tolerant fuzzy search engine.</p>
           <div class="tags"><span class="tag">React 19</span><span class="tag">Vite</span><span class="tag">Tailwind CSS</span><span class="tag">React Router</span><span class="tag">TanStack Query</span></div>
         </div>
-        <div class="card">
+        <div class="card" data-stop="PROJECT: LAB SYSTEM" data-look="lab">
           <div class="row"><h3>General Laboratory Item Management System</h3><span class="when">2025</span></div>
           <div class="org">Frontend Developer · UP Tacloban College</div>
           <p>Java desktop application for managing laboratory equipment and materials. Streamlined inventory tracking across lab departments, with a database architecture for equipment categorization and availability monitoring.</p>
           <div class="tags"><span class="tag">Java</span><span class="tag">Desktop App</span><span class="tag">Database Design</span></div>
         </div>
-        <div class="card">
+        <div class="card" data-stop="PROJECT: COACHTZY" data-look="arena">
           <div class="row"><h3>CoachTzy</h3><span class="when">2025</span></div>
           <div class="org">Full-Stack Developer · UP Tacloban College</div>
           <p>Web app for competitive team management with draft simulation and performance analytics. Secure authentication, a responsive multi-page dashboard, and a database for players, teams, and match data.</p>
           <div class="tags"><span class="tag">Supabase</span><span class="tag">JavaScript</span><span class="tag">Full-Stack</span></div>
         </div>
-        <div class="card">
+        <div class="card" data-stop="PROJECT: SNEK N LADERZ" data-look="game">
           <div class="row"><h3>Snek n Laderz</h3><span class="when">2024</span></div>
           <div class="org">Full-Stack Developer · UP Tacloban College</div>
           <p>Java Swing desktop board game with a multi-player framework, animated movement, custom board rendering, dice mechanics, and win detection.</p>
@@ -199,7 +255,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </div></div></div>
   </section>
 
-  <section class="sec" data-name="THESIS" data-row="106">
+  <section class="sec" data-name="THESIS" data-look="observatory" data-lake>
     <div class="win"><div class="band"><div class="paper">
       <h2>Thesis</h2>
       <div class="card">
@@ -211,7 +267,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </div></div></div>
   </section>
 
-  <section class="sec" data-name="EDUCATION" data-row="126">
+  <section class="sec" data-name="EDUCATION" data-look="school">
     <div class="win"><div class="band"><div class="paper">
       <h2>Education</h2>
       <div class="cards">
@@ -233,7 +289,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </div></div></div>
   </section>
 
-  <section class="sec" data-name="TECH STACK" data-row="146">
+  <section class="sec" data-name="TECH STACK" data-look="workshop">
     <div class="win"><div class="band"><div class="paper">
       <h2>Tech Stack</h2>
       <h3>Backend</h3>
@@ -247,7 +303,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </div></div></div>
   </section>
 
-  <section class="sec" data-name="CONTACT" data-row="165">
+  <section class="sec" data-name="CONTACT" data-look="post">
     <div class="win"><div class="band"><div class="paper">
       <h2>Contact</h2>
       <p>I'm open to software engineering roles in backend or applied ML. The quickest way to reach me is email.</p>
@@ -278,29 +334,95 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
    at the start. There are no image assets.
 
    The map's length follows the sections: add a <section class="sec">
-   with a data-row and the road, landmark and scenery extend for it.
+   and the road, landmark and scenery extend for it. Each panel is
+   measured once the fonts load, and the landmarks are spaced so no two
+   panels can overlap. data-look picks the building (see LOOKS);
+   data-lake puts the lake on the road just before that stop.
    ================================================================== */
 
+/* Phones get the split layout. The map is built once for whichever side
+   of this width the page loads on; crossing it later reloads the page. */
+const PHONE_MAX=900, PHONE=innerWidth<PHONE_MAX;
+
+/* On a phone, a section marked data-split becomes one stop per card, so
+   each project gets its own building and a short card of its own. */
+if(PHONE) for(const sec of document.querySelectorAll(".sec[data-split]")){
+  const cards=[...sec.querySelectorAll(".card[data-stop]")];
+  const links=sec.querySelector(".paper > .links");
+  cards.forEach((card,i)=>{
+    const stop=document.createElement("section");
+    stop.className="sec";
+    stop.dataset.name=card.dataset.stop;
+    if(card.dataset.look) stop.dataset.look=card.dataset.look;
+    stop.innerHTML='<div class="win"><div class="band"><div class="paper"></div></div></div>';
+    const h=document.createElement("h2");
+    h.textContent=sec.dataset.split+" "+(i+1)+" of "+cards.length;
+    const paper=stop.querySelector(".paper");
+    paper.append(h,card);
+    if(i===cards.length-1&&links) paper.append(links);
+    sec.before(stop);
+  });
+  if(cards.length) sec.remove();
+}
+
 const SECTIONS=[...document.querySelectorAll(".sec")].map(el=>({
-  el, name:el.dataset.name, row:+el.dataset.row
+  el, name:el.dataset.name, look:el.dataset.look, lake:el.hasAttribute("data-lake"), row:0
 }));
-const FIRST_ROW=SECTIONS[0].row, LAST_ROW=SECTIONS[SECTIONS.length-1].row;
+const TW=16;
 
-const TW=16, MAPW=44, MAPH=LAST_ROW+26;
-const WORLD_W=MAPW*TW, WORLD_H=MAPH*TW;
-const PATH_X=14;                      // the road's resting column
-const ROAD_END=LAST_ROW+12;
-/* Road column per section, relative to PATH_X. Two equal neighbours
-   mean a straight run between them (the lake sits on one). */
-const OFFS=[0,5,-3,0,0,4,-2,3];
-
-/* ---------------------------- plumbing ----------------------------- */
 function fatal(e){
   const el=document.getElementById("err");
   el.style.display="block";
   el.textContent="Something broke while building the page.\n\n"+((e&&(e.stack||e.message))||e);
 }
 addEventListener("error",ev=>fatal(ev.error||ev.message));
+
+/* Place each landmark far enough below the last that their panels can
+   never overlap. The tallest a desktop panel gets is at the narrowest
+   desktop width (46vw of 900px) and the smallest pixel scale (2), so
+   spacing for that case is enough for every desktop size. */
+function placeStops(){
+  const REF_W=414, REF_SCALE=2, GAP_PX=56, MIN_ROWS=19, LAKE_ROWS=25;
+  const heights=SECTIONS.map(s=>{
+    const keep=s.el.style.cssText;
+    s.el.style.cssText="position:absolute;visibility:hidden;left:-9999px;top:0;transform:none;width:"+REF_W+"px";
+    const h=s.el.offsetHeight;
+    s.el.style.cssText=keep;
+    return h;
+  });
+  let row=21;
+  SECTIONS.forEach((s,i)=>{
+    if(i>0){
+      const need=Math.ceil((heights[i-1]/2+heights[i]/2+GAP_PX)/(TW*REF_SCALE));
+      row+=Math.max(need,s.lake?LAKE_ROWS:MIN_ROWS);
+    }
+    s.row=row;
+  });
+}
+
+/* Wait for the pixel fonts (they set the panel heights), but never more
+   than a moment: on a slow connection the fallback font still works. */
+const FONTS=document.fonts?Promise.race([
+  Promise.all(['16px "Pixelify Sans"','700 12px "Silkscreen"','12px "Silkscreen"'].map(f=>document.fonts.load(f))),
+  new Promise(r=>setTimeout(r,2500))
+]):Promise.resolve();
+FONTS.catch(()=>{}).then(()=>{ try{ boot(); }catch(e){ fatal(e); } });
+
+function boot(){
+placeStops();
+const FIRST_ROW=SECTIONS[0].row, LAST_ROW=SECTIONS[SECTIONS.length-1].row;
+const MAPW=44, MAPH=LAST_ROW+26;
+const WORLD_W=MAPW*TW, WORLD_H=MAPH*TW;
+const PATH_X=14;                      // the road's resting column
+const ROAD_END=LAST_ROW+12;
+/* Road column per stop, relative to PATH_X. The stop after the lake
+   keeps the same column, so the road crosses the water in a straight
+   line. */
+const OFFS_CYCLE=[0,5,-3,0,4,-2,3,-4,2,5,-1];
+const OFFS=SECTIONS.map((s,i)=>OFFS_CYCLE[i%OFFS_CYCLE.length]);
+SECTIONS.forEach((s,i)=>{ if(s.lake&&i>0) OFFS[i]=OFFS[i-1]; });
+
+/* ---------------------------- plumbing ----------------------------- */
 
 function hash(x,y){let h=(x*374761393+y*668265263)^0x5bf03635;h=(h^(h>>>13))*1274126177;
   return ((h^(h>>>16))>>>0)/4294967296;}
@@ -524,7 +646,10 @@ const ROOFS={
   navy:{base:"#3d4f8a",lo:"#27345e",hi:"#6276b4",rim:"#97a8dc",eave:"#1e2846"},
   orange:{base:"#d9822b",lo:"#9a5717",hi:"#f2a95a",rim:"#ffd19a",eave:"#6e3d0f"},
   purple:{base:"#7a5aa8",lo:"#4e3a70",hi:"#a384d0",rim:"#c6aeea",eave:"#3b2b55"},
-  yellow:{base:"#d9a92b",lo:"#9a7417",hi:"#f2cc5a",rim:"#ffe59a",eave:"#6e520f"}
+  yellow:{base:"#d9a92b",lo:"#9a7417",hi:"#f2cc5a",rim:"#ffe59a",eave:"#6e520f"},
+  maroon:{base:"#8e3b46",lo:"#62252e",hi:"#b5606a",rim:"#d88c94",eave:"#47181f"},
+  sky:{base:"#4a90c8",lo:"#2f6491",hi:"#77b2e0",rim:"#a9d2f2",eave:"#22496b"},
+  olive:{base:"#7d8a3a",lo:"#565f25",hi:"#a2b05a",rim:"#c8d48a",eave:"#3e4519"}
 };
 const WALLS={
   cream:{base:"#efe0b6",hi:"#f8efd2",line:"#d6c290",trim:"#6e5a38"},
@@ -540,7 +665,10 @@ const ICONS={
   flask:{col:"#1f8f82",rows:["..XXX..","..X.X..","..X.X..",".X...X.","X.XXX.X","XXXXXXX","XXXXXXX"]},
   book:{col:"#3f6cab",rows:["XXXX.XXXX","X.XX.XX.X","XXXX.XXXX","X.XX.XX.X","XXXX.XXXX","XXXXXXXXX"]},
   gear:{col:"#5d6370",rows:["X.XXX.X",".XXXXX.","XXX.XXX","XX...XX","XXX.XXX",".XXXXX.","X.XXX.X"]},
-  mail:{col:"#7a4aa0",rows:["XXXXXXXXX","XX.....XX","X.X...X.X","X..X.X..X","X...X...X","X.......X","XXXXXXXXX"]}
+  mail:{col:"#7a4aa0",rows:["XXXXXXXXX","XX.....XX","X.X...X.X","X..X.X..X","X...X...X","X.......X","XXXXXXXXX"]},
+  pin:{col:"#8e3b46",rows:[".XXXXX.","XX...XX","XX...XX",".XXXXX.","..XXX..","...X...","...X..."]},
+  trophy:{col:"#c99a1a",rows:["XXXXXXXXX","X.XXXXX.X",".XXXXXXX.","..XXXXX..","...XXX...","....X....","..XXXXX.."]},
+  dice:{col:"#3a3f4a",rows:["XXXXXXX","X.XXX.X","XXXXXXX","XXX.XXX","XXXXXXX","X.XXX.X","XXXXXXX"]}
 };
 const OVER=4, BTOP=10;
 function buildBuilding(b){
@@ -677,7 +805,7 @@ const ROUTE=[];
   ROUTE.push({x,y:0});
   SECTIONS.forEach((s,i)=>{
     if(i===0) return;
-    const nx=PATH_X+OFFS[i%OFFS.length];
+    const nx=PATH_X+OFFS[i];
     if(nx===x) return;
     const jy=Math.round((SECTIONS[i-1].row+s.row)/2);
     ROUTE.push({x,y:jy});
@@ -756,7 +884,7 @@ for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++) if(pathG[y][x]) treeG[y][x]=fals
 
 /* the lake sits on the straight run before THESIS (MantaNet works on
    underwater imagery); the road crosses it on a bridge */
-const LAKE_I=SECTIONS.findIndex(s=>s.name==="THESIS");
+const LAKE_I=SECTIONS.findIndex(s=>s.lake);
 let LAKE=null;
 if(LAKE_I>0){
   const a=SECTIONS[LAKE_I-1].row, b=SECTIONS[LAKE_I].row;
@@ -827,15 +955,19 @@ const placeLamp=(x,y)=>{claim(x,y,1,1);addObj((y+1)*TW,x,g=>paintLamp(g,x*TW,y*T
 const placeSign=(x,y)=>{claim(x,y,1,1);addObj((y+1)*TW,x,g=>paintSign(g,x*TW,y*TW));};
 
 /* ---------- buildings ---------- */
+/* one building per data-look; a stop without one gets a plain house */
 const LOOKS={
-  "START":{roof:"green",wall:"cream",chimney:true,w:5,h:4,icon:"star"},
-  "ABOUT ME":{roof:"brown",wall:"cream",chimney:true,w:6,h:5,icon:"heart"},
-  "EXPERIENCE":{roof:"slate",wall:"cream",w:7,h:5,icon:"case"},
-  "PROJECTS":{roof:"teal",wall:"white",w:7,h:5,icon:"flask",antenna:true},
-  "THESIS":{roof:"navy",wall:"pale",w:6,h:5,dome:true},
-  "EDUCATION":{roof:"orange",wall:"cream",w:7,h:5,icon:"book"},
-  "TECH STACK":{roof:"purple",wall:"wood",w:6,h:4,icon:"gear"},
-  "CONTACT":{roof:"yellow",wall:"white",w:5,h:4,icon:"mail",mailbox:true}
+  home:{roof:"green",wall:"cream",chimney:true,w:5,h:4,icon:"star"},
+  about:{roof:"brown",wall:"cream",chimney:true,w:6,h:5,icon:"heart"},
+  office:{roof:"slate",wall:"cream",w:7,h:5,icon:"case"},
+  hall:{roof:"maroon",wall:"cream",w:7,h:5,icon:"pin"},
+  lab:{roof:"teal",wall:"white",w:6,h:5,icon:"flask",antenna:true},
+  arena:{roof:"sky",wall:"cream",w:6,h:5,icon:"trophy"},
+  game:{roof:"olive",wall:"wood",chimney:true,w:5,h:4,icon:"dice"},
+  observatory:{roof:"navy",wall:"pale",w:6,h:5,dome:true},
+  school:{roof:"orange",wall:"cream",w:7,h:5,icon:"book"},
+  workshop:{roof:"purple",wall:"wood",w:6,h:4,icon:"gear"},
+  post:{roof:"yellow",wall:"white",w:5,h:4,icon:"mail",mailbox:true}
 };
 const ROOFLIST=["green","brown","slate","teal","orange","purple","yellow","navy"];
 function addBuilding(b){
@@ -850,7 +982,7 @@ function addBuilding(b){
 }
 SECTIONS.forEach((s,i)=>{
   const rx=roadXAtRow(s.row);
-  const look=LOOKS[s.name]||{roof:ROOFLIST[i%ROOFLIST.length],w:6,h:5,chimney:i%3===0};
+  const look=LOOKS[s.look]||{roof:ROOFLIST[i%ROOFLIST.length],w:6,h:5,chimney:i%3===0};
   const b=Object.assign({x:rx+4,y:s.row+2-look.h,door:Math.floor(look.w/2)},look);
   addBuilding(b);
   if(b.mailbox){
@@ -1065,11 +1197,21 @@ function layout(){
      column cannot come apart. It is parked so the road's whole
      left-right range stays on screen. */
   const pathCentre=(PATH_X+1)*TW;
-  camX=Math.max(0,Math.min(WORLD_W-viewW,Math.round(pathCentre-viewW*(mobile?0.36:0.26))));
-  const frac=mobile?0.2:0.46, centre=mobile?0.62:0.5;
+  /* A phone shows little map, so park the camera from the road's
+     leftmost position: the walker never runs off the left edge. */
+  const leftmostWalker=(PATH_X+Math.min(...OFFS)+1)*TW;
+  camX=Math.max(0,Math.min(WORLD_W-viewW,Math.round(mobile
+    ?Math.min(pathCentre-viewW*0.2,leftmostWalker-28)
+    :pathCentre-viewW*0.26)));
+  /* on a phone the card sheet takes the bottom of the screen, so the
+     walker is centred in the strip of map above it */
+  const sheetTop=Math.round(vh*0.46);
+  document.body.classList.toggle("m",mobile);
+  document.documentElement.style.setProperty("--sheet-top",sheetTop+"px");
+  const centre=0.5;
   const first=FIRST_ROW*TW, last=LAST_ROW*TW;
   const lead=Math.round(viewH*LEAD_F), trail=Math.round(viewH*TRAIL_F);
-  SCRY=Math.min(Math.round(viewH*frac),first-lead);
+  SCRY=Math.min(mobile?Math.round(sheetTop*0.55/SCALE):Math.round(viewH*0.46),first-lead);
   if(WORLD_H-viewH+SCRY < last+32)
     SCRY=Math.min(first-lead,Math.max(SCRY,last+32-(WORLD_H-viewH)));
   SCRY=Math.max(8,SCRY);
@@ -1081,19 +1223,64 @@ function layout(){
      centred at PANEL_Y when the walker stands on that landmark */
   PANEL_Y=Math.round(vh*centre);
   for(const s of SECTIONS){
-    s.scroll=Math.round((arcAtWorldY(s.row*TW)-ARC_FROM)*SCALE);
+    s.arc=arcAtWorldY(s.row*TW);
+    s.scroll=Math.round((s.arc-ARC_FROM)*SCALE);
     s.top=null;
+    if(mobile){ s.el.style.top=""; s.el.style.visibility=""; }
+    else s.el.classList.remove("on");
   }
+  sheetActive=null;
 }
-addEventListener("resize",()=>{try{layout();}catch(e){fatal(e);}});
+/* Phone browsers resize the viewport as the address bar slides in and
+   out. Re-laying out on that would jump the whole page, so a height-only
+   change on a phone just grows or shrinks the canvas. */
+let lastW=innerWidth, sheetActive=null;
+/* Crossing the phone width needs the other map (split or single Projects
+   stop), so remember where the walker is and reload. */
+const RESUME_KEY="route-stop";
+function rebuildForWidth(){
+  try{ if(active) sessionStorage.setItem(RESUME_KEY,active.name); }catch(e){}
+  try{ history.scrollRestoration="manual"; }catch(e){}
+  location.reload();
+}
+addEventListener("resize",()=>{try{
+  if((innerWidth<PHONE_MAX)!==PHONE){ rebuildForWidth(); return; }
+  if(mobile&&innerWidth===lastW){
+    cv.height=Math.ceil(innerHeight/SCALE); viewH=cv.height; ctx.imageSmoothingEnabled=false;
+    return;
+  }
+  lastW=innerWidth; layout();
+}catch(e){fatal(e);}});
 layout();
 /* Pinned panels never scroll into view on their own, so tabbing to a
    link in one walks the route to that panel's landmark. */
 for(const s of SECTIONS)
   s.el.addEventListener("focusin",()=>{ if(Math.abs(scrollY-s.scroll)>4) scrollTo(0,s.scroll); });
 
+/* ---- stop list: the banner opens a list of every stop to jump to ---- */
+const stopsBtn=document.getElementById("stopsBtn"), stopsNav=document.getElementById("stops");
+const stopList=document.getElementById("stopList");
+for(const s of SECTIONS){
+  const li=document.createElement("li"), b=document.createElement("button");
+  b.type="button"; b.textContent=s.name;
+  b.addEventListener("click",()=>{
+    setStops(false);
+    scrollTo({top:s.scroll,behavior:reduced?"auto":"smooth"});
+    stopsBtn.focus();
+  });
+  li.appendChild(b); stopList.appendChild(li); s.item=b;
+}
+function setStops(open){
+  stopsNav.hidden=!open;
+  stopsBtn.setAttribute("aria-expanded",open?"true":"false");
+  if(open) (active?active.item:SECTIONS[0].item).focus();
+}
+stopsBtn.addEventListener("click",()=>setStops(stopsNav.hidden));
+addEventListener("keydown",e=>{ if(e.key==="Escape"&&!stopsNav.hidden){ setStops(false); stopsBtn.focus(); } });
+addEventListener("pointerdown",e=>{ if(!stopsNav.hidden&&!bannerEl.contains(e.target)) setStops(false); });
+
 const walker={dir:"down",frame:1,dist:0,step:0,idle:0,arc:null,prev:null};
-let active=null, bannerTimer=0, t=0;
+let active=null, t=0;
 
 function draw(dt){
   const maxScroll=Math.max(1,ARC_RANGE*SCALE);
@@ -1106,7 +1293,18 @@ function draw(dt){
   const walkY=pos.y;
   const camY=Math.round(walkY-SCRY);
 
-  /* panels ride the same camera as the map, in whole screen pixels */
+  if(mobile){
+    /* phone: the sheet shows whichever stop the walker is nearest */
+    let near=SECTIONS[0];
+    for(const s of SECTIONS) if(Math.abs(s.arc-walker.arc)<Math.abs(near.arc-walker.arc)) near=s;
+    if(near!==sheetActive){
+      if(sheetActive) sheetActive.el.classList.remove("on");
+      near.el.classList.add("on");
+      const paper=near.el.querySelector(".paper"); if(paper) paper.scrollTop=0;
+      sheetActive=near;
+    }
+  } else
+  /* desktop: panels ride the same camera as the map, in whole screen pixels */
   for(const s of SECTIONS){
     const top=(s.row*TW-SCRY-camY)*SCALE+PANEL_Y;
     if(top===s.top) continue;
@@ -1151,17 +1349,16 @@ function draw(dt){
   ctx.drawImage(SPRITES[walker.dir][walker.frame],sx,sy2-SPR_H+8);
 
   barEl.style.height=((sy/maxScroll)*100).toFixed(2)+"%";
-  cueEl.style.opacity=sy>120?0:1;
-  let best=null,bd=1e9;
-  for(const sec of SECTIONS){
-    const dd=Math.abs(sec.row*TW-walkY);
-    if(dd<bd){bd=dd;best=sec;}
+  cueEl.style.opacity=sy>(mobile?40:120)?0:1;
+  /* the banner names the stop the walker is nearest */
+  let best=SECTIONS[0];
+  for(const s of SECTIONS) if(Math.abs(s.arc-walker.arc)<Math.abs(best.arc-walker.arc)) best=s;
+  if(best!==active){
+    if(active) active.item.removeAttribute("aria-current");
+    best.item.setAttribute("aria-current","location");
+    bannerText.textContent=best.name;
+    active=best;
   }
-  if(best&&best!==active&&bd<150){
-    active=best; bannerText.textContent=best.name;
-    bannerEl.classList.add("on"); bannerTimer=2.2;
-  }
-  if(bannerTimer>0){ bannerTimer-=dt; if(bannerTimer<=0) bannerEl.classList.remove("on"); }
 }
 
 let prev=performance.now();
@@ -1172,6 +1369,19 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+/* After a reload for a width change, walk back to the stop the visitor
+   was at. A project stop maps to the single Projects stop and back. */
+(function resumeStop(){
+  let name=null;
+  try{ name=sessionStorage.getItem(RESUME_KEY); sessionStorage.removeItem(RESUME_KEY); }catch(e){}
+  if(!name) return;
+  const target=SECTIONS.find(s=>s.name===name)
+    ||(/^PROJECT/.test(name)?SECTIONS.find(s=>/^PROJECT/.test(s.name)):null);
+  if(target) scrollTo(0,target.scroll);
+})();
+/* reveal the panels once the first frame has placed them */
+requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.add("ready")));
+}  /* end boot() */
 </script>
 </body>
 </html>
