@@ -1288,10 +1288,17 @@ addEventListener("resize",()=>{try{
   lastW=innerWidth; layout();
 }catch(e){fatal(e);}});
 layout();
-/* Pinned panels never scroll into view on their own, so tabbing to a
-   link in one walks the route to that panel's landmark. */
+/* Pinned panels never scroll into view on their own, so TABBING to a
+   link in one walks the route to that panel's landmark. Only keyboard
+   focus does this: a mouse click or tap also focuses the link, and
+   scrolling then would move the link out from under the pointer before
+   the click lands, so the link would never open. */
 for(const s of SECTIONS)
-  s.el.addEventListener("focusin",()=>{ if(Math.abs(scrollY-s.scroll)>4) scrollTo(0,s.scroll); });
+  s.el.addEventListener("focusin",e=>{
+    let keyboard=true;
+    try{ keyboard=e.target.matches(":focus-visible"); }catch(err){}
+    if(keyboard&&Math.abs(scrollY-s.scroll)>4) scrollTo(0,s.scroll);
+  });
 
 /* ---- stop list: the banner opens a list of every stop to jump to ---- */
 const stopsBtn=document.getElementById("stopsBtn"), stopsNav=document.getElementById("stops");
